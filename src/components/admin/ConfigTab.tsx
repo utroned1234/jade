@@ -31,6 +31,8 @@ export default function ConfigTab({ token }: ConfigTabProps) {
   const [saving, setSaving] = useState<string | null>(null)
   const [globalQr, setGlobalQr] = useState('')
   const [whatsappNumber, setWhatsappNumber] = useState('')
+  const [binanceWalletId, setBinanceWalletId] = useState('')
+  const [binanceQrUrl, setBinanceQrUrl] = useState('')
   const { showToast } = useToast()
 
   useEffect(() => {
@@ -68,6 +70,8 @@ export default function ConfigTab({ token }: ConfigTabProps) {
       if (configRes.ok) {
         const configData = await configRes.json()
         setWhatsappNumber(configData.whatsapp_number || '')
+        setBinanceWalletId(configData.binance_wallet_id || '')
+        setBinanceQrUrl(configData.binance_qr_url || '')
       }
     } catch (error) {
       console.error('Error fetching config:', error)
@@ -151,6 +155,34 @@ export default function ConfigTab({ token }: ConfigTabProps) {
     }
   }
 
+  const updateBinanceConfig = async () => {
+    setSaving('binance')
+    try {
+      const res = await fetch('/api/admin/config', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          binance_wallet_id: binanceWalletId,
+          binance_qr_url: binanceQrUrl,
+        }),
+      })
+
+      if (res.ok) {
+        showToast('Configuración de Binance actualizada', 'success')
+        fetchData()
+      } else {
+        showToast('Error al actualizar', 'error')
+      }
+    } catch (error) {
+      showToast('Error de conexión', 'error')
+    } finally {
+      setSaving(null)
+    }
+  }
+
   const updateBonus = async (rule: BonusRule) => {
     setSaving(`bonus-${rule.id}`)
     try {
@@ -209,7 +241,7 @@ export default function ConfigTab({ token }: ConfigTabProps) {
   if (packages.length === 0) {
     return (
       <div className="text-center">
-        <p className="text-red-500 mb-4">⚠️ No hay paquetes VIP en la base de datos</p>
+        <p className="text-red-500 mb-4">⚠️ No hay paquetes JADE en la base de datos</p>
         <p className="text-text-secondary">Por favor ejecuta: npm run prisma:seed</p>
       </div>
     )
@@ -220,7 +252,7 @@ export default function ConfigTab({ token }: ConfigTabProps) {
       {/* VIP Packages Table */}
       <div>
         <div className="mb-4">
-          <h2 className="text-2xl font-bold text-gold mb-2">⚙️ Paquetes VIP</h2>
+          <h2 className="text-2xl font-bold text-gold mb-2">⚙️ Paquetes JADE</h2>
           <p className="text-sm text-text-secondary">
             Modifica la inversión, ganancia diaria y porcentaje de retorno de cada paquete
           </p>
@@ -232,8 +264,8 @@ export default function ConfigTab({ token }: ConfigTabProps) {
               <tr className="border-b border-gold border-opacity-30">
                 <th className="text-left py-3 px-4 text-gold font-bold uppercase text-sm">Estado</th>
                 <th className="text-left py-3 px-4 text-gold font-bold uppercase text-sm">Paquete</th>
-                <th className="text-left py-3 px-4 text-gold font-bold uppercase text-sm">Inversión (Bs)</th>
-                <th className="text-left py-3 px-4 text-gold font-bold uppercase text-sm">Ganancia/Día (Bs)</th>
+                <th className="text-left py-3 px-4 text-gold font-bold uppercase text-sm">Inversión (USD)</th>
+                <th className="text-left py-3 px-4 text-gold font-bold uppercase text-sm">Ganancia/Día (USD)</th>
                 <th className="text-left py-3 px-4 text-gold font-bold uppercase text-sm">% Diario</th>
                 <th className="text-center py-3 px-4 text-gold font-bold uppercase text-sm">Acción</th>
               </tr>
@@ -348,7 +380,7 @@ export default function ConfigTab({ token }: ConfigTabProps) {
               </tr>
             </thead>
             <tbody>
-              {bonusRules.filter(rule => rule.level <= 3).map((rule) => (
+              {bonusRules.filter(rule => rule.level <= 5).map((rule) => (
                 <tr key={rule.id} className="border-b border-gold border-opacity-10 hover:bg-gold hover:bg-opacity-5 transition-colors">
                   <td className="py-3 px-4">
                     <span className="text-gold-bright font-bold text-xl">Nivel {rule.level}</span>
@@ -358,6 +390,8 @@ export default function ConfigTab({ token }: ConfigTabProps) {
                       {rule.level === 1 ? '👤 Patrocinador directo (quien invitó al usuario)' :
                        rule.level === 2 ? '👥 Segundo nivel (patrocinador del patrocinador)' :
                        rule.level === 3 ? '👨‍👩‍👧 Tercer nivel (patrocinador del nivel 2)' :
+                       rule.level === 4 ? '🔗 Cuarto nivel (patrocinador del nivel 3)' :
+                       rule.level === 5 ? '🌐 Quinto nivel (patrocinador del nivel 4)' :
                        null}
                     </span>
                   </td>
@@ -393,19 +427,70 @@ export default function ConfigTab({ token }: ConfigTabProps) {
 
         <Card className="bg-dark-bg mt-4">
           <div className="text-sm text-text-secondary space-y-2">
-            <p>💡 <strong className="text-gold">Ejemplo:</strong> Si un usuario compra VIP de Bs 1000 y el Nivel 1 tiene 12%:</p>
-            <p className="pl-4">→ Su patrocinador directo recibe: 1000 × 12% = <span className="text-gold-bright font-bold">Bs 120</span></p>
-            <p className="pl-4">→ El nivel 2 recibe: 1000 × 5% = <span className="text-gold-bright font-bold">Bs 50</span></p>
-            <p className="pl-4">→ El nivel 3 recibe: 1000 × 1% = <span className="text-gold-bright font-bold">Bs 10</span></p>
+            <p>💡 <strong className="text-gold">Ejemplo:</strong> Si un usuario compra JADE de $1000:</p>
+            <p className="pl-4">→ Nivel 1 (directo): 1000 × {bonusRules.find(r => r.level === 1)?.percentage || 0}% = <span className="text-gold-bright font-bold">${((1000 * (bonusRules.find(r => r.level === 1)?.percentage || 0)) / 100).toFixed(0)}</span></p>
+            <p className="pl-4">→ Nivel 2: 1000 × {bonusRules.find(r => r.level === 2)?.percentage || 0}% = <span className="text-gold-bright font-bold">${((1000 * (bonusRules.find(r => r.level === 2)?.percentage || 0)) / 100).toFixed(0)}</span></p>
+            <p className="pl-4">→ Nivel 3: 1000 × {bonusRules.find(r => r.level === 3)?.percentage || 0}% = <span className="text-gold-bright font-bold">${((1000 * (bonusRules.find(r => r.level === 3)?.percentage || 0)) / 100).toFixed(0)}</span></p>
+            <p className="pl-4">→ Nivel 4: 1000 × {bonusRules.find(r => r.level === 4)?.percentage || 0}% = <span className="text-gold-bright font-bold">${((1000 * (bonusRules.find(r => r.level === 4)?.percentage || 0)) / 100).toFixed(0)}</span></p>
+            <p className="pl-4">→ Nivel 5: 1000 × {bonusRules.find(r => r.level === 5)?.percentage || 0}% = <span className="text-gold-bright font-bold">${((1000 * (bonusRules.find(r => r.level === 5)?.percentage || 0)) / 100).toFixed(0)}</span></p>
             <p className="mt-3">⚠️ <strong className="text-gold">IMPORTANTE:</strong> Los cambios se aplican a TODAS las nuevas compras aprobadas.</p>
             <p>⚠️ Las compras anteriores mantienen el porcentaje con el que fueron calculadas.</p>
           </div>
         </Card>
 
+        {/* Binance USDT Config */}
+        <Card className="bg-dark-bg mt-4">
+          <div className="space-y-4">
+            <div>
+              <h3 className="text-lg font-bold text-gold mb-1">💰 Pago con Binance (USDT)</h3>
+              <p className="text-sm text-text-secondary">
+                Configura el QR y el ID de billetera Binance que verán los usuarios al comprar paquetes.
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm text-gold font-semibold">ID de Billetera Binance (USDT)</label>
+              <input
+                type="text"
+                value={binanceWalletId}
+                onChange={(e) => setBinanceWalletId(e.target.value)}
+                className="w-full px-3 py-2 bg-dark-bg border border-gold border-opacity-30 rounded text-text-primary focus:outline-none focus:border-gold transition-all"
+                placeholder="Ej: 0x1234abcd... o TRC20 address"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm text-gold font-semibold">URL de imagen QR de Binance</label>
+              <input
+                type="text"
+                value={binanceQrUrl}
+                onChange={(e) => setBinanceQrUrl(e.target.value)}
+                className="w-full px-3 py-2 bg-dark-bg border border-gold border-opacity-30 rounded text-text-primary focus:outline-none focus:border-gold transition-all"
+                placeholder="https://... URL de la imagen del QR"
+              />
+              {binanceQrUrl && (
+                <div className="mt-2 p-2 bg-white rounded-lg w-32 h-32 mx-auto">
+                  <img src={binanceQrUrl} alt="QR Preview" className="w-full h-full object-contain" />
+                </div>
+              )}
+            </div>
+
+            <Button
+              variant="primary"
+              onClick={updateBinanceConfig}
+              disabled={saving === 'binance'}
+              className="w-full"
+            >
+              {saving === 'binance' ? 'Guardando...' : 'Guardar Configuración Binance'}
+            </Button>
+          </div>
+        </Card>
+
+        {/* QR global legacy */}
         <Card className="bg-dark-bg mt-4">
           <div className="space-y-3">
             <p className="text-sm text-text-secondary">
-              QR global para todos los paquetes (se actualiza automaticamente).
+              QR global para todos los paquetes (legacy - se recomienda usar el QR de Binance arriba).
             </p>
             <input
               type="text"

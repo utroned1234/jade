@@ -21,6 +21,7 @@ type Tab =
   | 'config'
   | 'daily-profit'
   | 'tasks'
+  | 'roulette'
 
 interface Purchase {
   id: string
@@ -106,15 +107,7 @@ interface Announcement {
   created_at: string
 }
 
-interface EffortBonus {
-  id: number
-  title: string
-  target_kpi: string
-  level_description: string
-  amount_bs: number
-  requirement_description: string
-  is_active: boolean
-}
+
 
 interface VipPackage {
   id: number
@@ -131,6 +124,24 @@ interface BonusRule {
   percentage: number
 }
 
+interface RouletteSpinRecord {
+  id: string
+  username: string
+  full_name: string
+  entry_amount: number
+  prize_amount: number
+  won: boolean
+  session_id: string
+  created_at: string
+}
+
+interface RouletteStats {
+  total_spins: number
+  total_entries: number
+  total_prizes: number
+  platform_profit: number
+}
+
 export default function AdminPage() {
   const router = useRouter()
   const [tab, setTab] = useState<Tab>('purchases')
@@ -139,14 +150,6 @@ export default function AdminPage() {
   const [withdrawals, setWithdrawals] = useState<Withdrawal[]>([])
   const [activeUsers, setActiveUsers] = useState<ActiveUser[]>([])
   const [announcements, setAnnouncements] = useState<Announcement[]>([])
-  const [effortBonuses, setEffortBonuses] = useState<EffortBonus[]>([])
-
-  // New Bonus States
-  const [newBonusTitle, setNewBonusTitle] = useState('')
-  const [newBonusTarget, setNewBonusTarget] = useState('')
-  const [newBonusLevelDesc, setNewBonusLevelDesc] = useState('')
-  const [newBonusAmount, setNewBonusAmount] = useState('')
-  const [newBonusReqDesc, setNewBonusReqDesc] = useState('')
 
   const [newsTitle, setNewsTitle] = useState('')
   const [newsBody, setNewsBody] = useState('')
@@ -181,6 +184,11 @@ export default function AdminPage() {
   const [receiptFile, setReceiptFile] = useState<File | null>(null)
   const [receiptUploading, setReceiptUploading] = useState(false)
 
+  // Roulette states
+  const [rouletteSpins, setRouletteSpins] = useState<RouletteSpinRecord[]>([])
+  const [rouletteStats, setRouletteStats] = useState<RouletteStats | null>(null)
+  const [rouletteLoading, setRouletteLoading] = useState(false)
+
   useEffect(() => {
     // Get token only on client side
     if (typeof window !== 'undefined') {
@@ -208,7 +216,8 @@ export default function AdminPage() {
       fetchActiveUsers(0, false)
     } else if (tab === 'news') {
       fetchNews()
-      fetchEffortBonuses()
+    } else if (tab === 'roulette') {
+      fetchRouletteHistory()
     }
   }, [tab, token])
 
@@ -274,6 +283,24 @@ export default function AdminPage() {
     } finally {
       setConfigLoading(false)
       setAdminChecking(false)
+    }
+  }
+
+  const fetchRouletteHistory = async () => {
+    setRouletteLoading(true)
+    try {
+      const res = await fetch('/api/admin/roulette-history', {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      if (res.ok) {
+        const data = await res.json()
+        setRouletteSpins(data.spins || [])
+        setRouletteStats(data.stats || null)
+      }
+    } catch (error) {
+      console.error('Error fetching roulette history:', error)
+    } finally {
+      setRouletteLoading(false)
     }
   }
 
@@ -484,47 +511,6 @@ export default function AdminPage() {
     }
   }
 
-  const fetchEffortBonuses = async () => {
-    try {
-      const token = getToken()
-      const res = await fetch('/api/admin/effort-bonuses', {
-        headers: { Authorization: `Bearer ${token}` },
-      })
-      if (res.ok) {
-        const data = await res.json()
-        setEffortBonuses(data)
-      }
-    } catch (error) {
-      console.error('Error loading effort bonuses', error)
-    }
-  }
-
-  const updateEffortBonus = async (bonus: EffortBonus) => {
-    setSaving(`bonus-effort-${bonus.id}`)
-    try {
-      const token = getToken()
-      const res = await fetch('/api/admin/effort-bonuses', {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(bonus),
-      })
-      if (res.ok) {
-        showToast('Bono actualizado', 'success')
-        fetchEffortBonuses()
-      } else {
-        showToast('Error al actualizar', 'error')
-      }
-    } catch (error) {
-      showToast('Error de conexión', 'error')
-    } finally {
-      setSaving(null)
-    }
-  }
-
-
   const handleApprovePurchase = async (id: string) => {
     if (!confirm('¿Activar esta compra?')) return
 
@@ -669,77 +655,9 @@ export default function AdminPage() {
     { key: 'daily-profit' as const, label: 'Diarias', icon: '⏱️' },
     { key: 'news' as const, label: 'Noticias', icon: '📰' },
     { key: 'tasks' as const, label: 'Tareas', icon: '📋' },
+    { key: 'roulette' as const, label: 'Ruleta', icon: '🎰' },
   ]
 
-
-  const handleCreateBonus = async () => {
-    if (!newBonusTitle || !newBonusTarget || !newBonusAmount) {
-      setErrorMessage('Título, Target y Monto son requeridos')
-      return
-    }
-
-    setProcessing(true)
-    try {
-      const token = getToken()
-      const res = await fetch('/api/admin/effort-bonuses', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          title: newBonusTitle,
-          target_kpi: newBonusTarget,
-          level_description: newBonusLevelDesc,
-          amount_bs: Number(newBonusAmount),
-          requirement_description: newBonusReqDesc,
-        }),
-      })
-
-      if (res.ok) {
-        showToast('Bono creado exitosamente', 'success')
-        setNewBonusTitle('')
-        setNewBonusTarget('')
-        setNewBonusLevelDesc('')
-        setNewBonusAmount('')
-        setNewBonusReqDesc('')
-        fetchEffortBonuses()
-      } else {
-        const data = await res.json().catch(() => null)
-        showToast(data?.error || 'Error al crear bono', 'error')
-      }
-    } catch (error) {
-      showToast('Error de conexión', 'error')
-    } finally {
-      setProcessing(false)
-    }
-  }
-
-  const handleDeleteBonus = async (id: number) => {
-    if (!confirm('¿Eliminar este bono permanentemente?')) return
-    setProcessing(true)
-    try {
-      const token = getToken()
-      const res = await fetch('/api/admin/effort-bonuses', {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ id }),
-      })
-      if (res.ok) {
-        showToast('Bono eliminado', 'success')
-        fetchEffortBonuses()
-      } else {
-        showToast('Error al eliminar', 'error')
-      }
-    } catch (error) {
-      showToast('Error de conexión', 'error')
-    } finally {
-      setProcessing(false)
-    }
-  }
 
   const handleCreateNews = async () => {
     if (!newsTitle || !newsBody) {
@@ -857,7 +775,7 @@ export default function AdminPage() {
                       Total de inversiones sumadas
                     </span>
                     <span className="text-2xl font-bold text-gold">
-                      Bs {purchasesTotal.toFixed(2)}
+                      ${purchasesTotal.toFixed(2)}
                     </span>
                   </div>
                 </Card>
@@ -1040,7 +958,7 @@ export default function AdminPage() {
                             <div className="mt-2 bg-green-500/10 border border-green-500/30 rounded px-2 py-1">
                               <p className="text-[10px] text-text-secondary uppercase tracking-wider">Saldo en billetera</p>
                               <p className={`text-lg font-bold ${w.total_earnings_bs >= w.amount_bs ? 'text-green-400' : 'text-red-400'}`}>
-                                Bs {w.total_earnings_bs.toFixed(2)}
+                                ${w.total_earnings_bs.toFixed(2)}
                               </p>
                               {w.total_earnings_bs < w.amount_bs && (
                                 <p className="text-[9px] text-red-400">Saldo insuficiente</p>
@@ -1050,7 +968,7 @@ export default function AdminPage() {
                           <div className="text-right">
                             <p className="text-[10px] text-text-secondary uppercase tracking-wider">Monto solicitado</p>
                             <p className="text-xl font-bold text-gold">
-                              Bs {w.amount_bs.toFixed(2)}
+                              ${w.amount_bs.toFixed(2)}
                             </p>
                             <div className="mt-2 text-[10px] text-text-secondary space-y-1">
                               <div>
@@ -1148,7 +1066,7 @@ export default function AdminPage() {
                       <p className="text-sm text-text-secondary">
                         <span className="font-bold text-text-primary">{selectedWithdrawalForReceipt.user.full_name}</span>
                       </p>
-                      <p className="text-lg font-bold text-gold">Bs {selectedWithdrawalForReceipt.amount_bs.toFixed(2)}</p>
+                      <p className="text-lg font-bold text-gold">${selectedWithdrawalForReceipt.amount_bs.toFixed(2)}</p>
                     </div>
 
                     <div className="space-y-2">
@@ -1241,19 +1159,19 @@ export default function AdminPage() {
                           <div className="text-right">
                             <p className="text-xs text-text-secondary uppercase">Total Ganado</p>
                             <p className="text-2xl font-bold text-gold">
-                              Bs {entry.earnings.totalEarnings.toFixed(2)}
+                              ${entry.earnings.totalEarnings.toFixed(2)}
                             </p>
                           </div>
                         </div>
 
                         {/* Paquetes VIP Activos */}
                         <div className="bg-dark-card bg-opacity-50 rounded-lg p-3">
-                          <p className="text-xs text-gold font-bold uppercase mb-2">📦 Paquetes VIP Activos</p>
+                          <p className="text-xs text-gold font-bold uppercase mb-2">📦 Paquetes JADE Activos</p>
                           <div className="space-y-2">
                             {entry.active_packages.map((pkg, idx) => (
                               <div key={idx} className="bg-dark-bg rounded p-2 space-y-1">
                                 <div className="flex items-center justify-between">
-                                  <span className="text-sm font-bold text-blue-bright">{pkg.name}</span>
+                                  <span className="text-sm font-bold text-jade">{pkg.name}</span>
                                   <span className="text-xs text-text-secondary bg-gold/20 px-2 py-0.5 rounded">Nivel {pkg.level}</span>
                                 </div>
                                 <div className="text-xs text-text-secondary grid grid-cols-2 gap-1">
@@ -1280,7 +1198,7 @@ export default function AdminPage() {
                             <div className="flex items-center justify-between mb-2">
                               <p className="text-xs font-bold text-green-400 uppercase">💰 Ganancias Diarias</p>
                               <p className="text-lg font-bold text-green-400">
-                                Bs {entry.earnings.dailyProfit.total.toFixed(2)}
+                                ${entry.earnings.dailyProfit.total.toFixed(2)}
                               </p>
                             </div>
                             <p className="text-xs text-text-secondary">
@@ -1292,9 +1210,9 @@ export default function AdminPage() {
                           {entry.earnings.adjustments.items.length > 0 && (
                             <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-3">
                               <div className="flex items-center justify-between mb-2">
-                                <p className="text-xs font-bold text-blue-bright uppercase">🛠️ Ajustes desde Panel</p>
+                                <p className="text-xs font-bold text-jade uppercase">🛠️ Ajustes desde Panel</p>
                                 <p className={`text-lg font-bold ${entry.earnings.adjustments.total >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-                                  {entry.earnings.adjustments.total >= 0 ? '+' : ''}Bs {entry.earnings.adjustments.total.toFixed(2)}
+                                  {entry.earnings.adjustments.total >= 0 ? '+' : ''}${entry.earnings.adjustments.total.toFixed(2)}
                                 </p>
                               </div>
                               <div className="space-y-1">
@@ -1307,7 +1225,7 @@ export default function AdminPage() {
                                       <span className="text-text-secondary">{adj.description}</span>
                                     </div>
                                     <span className={`font-bold ${adj.amount >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-                                      {adj.amount >= 0 ? '+' : ''}Bs {adj.amount.toFixed(2)}
+                                      {adj.amount >= 0 ? '+' : ''}${adj.amount.toFixed(2)}
                                     </span>
                                   </div>
                                 ))}
@@ -1321,7 +1239,7 @@ export default function AdminPage() {
                               <div className="flex items-center justify-between mb-2">
                                 <p className="text-xs font-bold text-gold uppercase">🤝 Ganancias de Patrocinio</p>
                                 <p className="text-lg font-bold text-gold">
-                                  Bs {entry.earnings.referralBonus.total.toFixed(2)}
+                                  ${entry.earnings.referralBonus.total.toFixed(2)}
                                 </p>
                               </div>
                               <div className="space-y-1">
@@ -1331,7 +1249,7 @@ export default function AdminPage() {
                                       <span className="font-bold text-gold">Bonos de patrocinados Nivel {bonus.level}</span>
                                     </span>
                                     <span className="font-bold text-gold">
-                                      Bs {bonus.amount.toFixed(2)}
+                                      ${bonus.amount.toFixed(2)}
                                     </span>
                                   </div>
                                 ))}
@@ -1345,7 +1263,7 @@ export default function AdminPage() {
                               <div className="flex items-center justify-between mb-2">
                                 <p className="text-xs font-bold text-purple-400 uppercase">🎰 Ganancias de Ruleta</p>
                                 <p className="text-lg font-bold text-purple-400">
-                                  Bs {entry.earnings.rouletteWins.total.toFixed(2)}
+                                  ${entry.earnings.rouletteWins.total.toFixed(2)}
                                 </p>
                               </div>
                               <p className="text-xs text-text-secondary">
@@ -1529,170 +1447,89 @@ export default function AdminPage() {
                   )}
                 </div>
 
-                <div className="border-t border-gold border-opacity-20 pt-8 mt-8">
-                  <h3 className="text-xl font-bold text-gold mb-4">🏆 Gestión de Bonos de Esfuerzo</h3>
-
-                  {/* Formulario de Creación */}
-                  {/* Formulario de Creación (Límite 3) */}
-                  {effortBonuses.length < 3 ? (
-                    <Card glassEffect className="mb-6">
-                      <h4 className="text-lg font-bold text-gold mb-4">NUEVO BONO</h4>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <Input
-                          label="Título (Ej. Meta 1)"
-                          value={newBonusTitle}
-                          onChange={(e) => setNewBonusTitle(e.target.value)}
-                          placeholder="Nombre de la meta"
-                        />
-                        <Input
-                          label="Target (Ej. 30 activos)"
-                          value={newBonusTarget}
-                          onChange={(e) => setNewBonusTarget(e.target.value)}
-                          placeholder="Objetivo numérico"
-                        />
-                        <Input
-                          label="Descripción Nivel (Ej. Nivel 1)"
-                          value={newBonusLevelDesc}
-                          onChange={(e) => setNewBonusLevelDesc(e.target.value)}
-                          placeholder="Donde aplica"
-                        />
-                        <Input
-                          label="Monto (Bs)"
-                          type="number"
-                          value={newBonusAmount}
-                          onChange={(e) => setNewBonusAmount(e.target.value)}
-                          placeholder="Monto del premio"
-                        />
-                        <div className="md:col-span-2">
-                          <label className="block text-sm text-text-secondary uppercase tracking-wider font-light mb-2">
-                            Descripción Requisito
-                          </label>
-                          <textarea
-                            className="w-full bg-dark-bg border border-gold/30 rounded p-2 text-sm text-text-primary focus:border-gold outline-none"
-                            rows={2}
-                            value={newBonusReqDesc}
-                            onChange={(e) => setNewBonusReqDesc(e.target.value)}
-                            placeholder="Detalles de como ganar el bono"
-                          />
-                        </div>
-                        <div className="md:col-span-2">
-                          <Button
-                            variant="primary"
-                            className="w-full"
-                            onClick={handleCreateBonus}
-                            disabled={processing}
-                          >
-                            {processing ? 'Guardando...' : '➕ Crear Bono'}
-                          </Button>
-                        </div>
-                      </div>
-                    </Card>
-                  ) : (
-                    <Card glassEffect className="mb-6 border-gold/50 bg-gold/5">
-                      <div className="text-center py-6">
-                        <div className="text-4xl mb-2">✅</div>
-                        <h4 className="text-lg font-bold text-gold">Límite de Bonos Alcanzado (3/3)</h4>
-                        <p className="text-sm text-text-secondary mt-2">
-                          Para agregar un nuevo bono, primero elimina uno de la lista inferior.
-                        </p>
-                      </div>
-                    </Card>
-                  )}
-
-                  <h4 className="text-lg font-bold text-gold mb-4">LISTA DE BONOS ({effortBonuses.length})</h4>
-                  <div className="space-y-6">
-                    {effortBonuses.map((bonus) => (
-                      <Card key={bonus.id} glassEffect className={`relative overflow-hidden ${!bonus.is_active ? 'opacity-70 grayscale' : ''}`}>
-                        <div className={`absolute top-0 left-0 w-1 h-full ${bonus.is_active ? 'bg-gold' : 'bg-red-500'}`}></div>
-                        <div className="pl-3 space-y-4">
-                          <div className="flex justify-between items-center flex-wrap gap-2">
-                            <div className="flex items-center gap-2">
-                              <h4 className="font-bold text-lg text-gold">{bonus.title}</h4>
-                              <span className={`text-[10px] px-2 py-0.5 rounded border ${bonus.is_active ? 'border-green-500 text-green-400' : 'border-red-500 text-red-500'}`}>
-                                {bonus.is_active ? 'VISIBLE' : 'OCULTO'}
-                              </span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              {saving === `bonus-effort-${bonus.id}` && <span className="text-xs text-gold animate-pulse">Guardando...</span>}
-
-                              <Button
-                                variant="outline"
-                                className={`text-xs py-1 px-3 ${bonus.is_active ? 'text-red-400 border-red-500' : 'text-green-400 border-green-500'}`}
-                                onClick={() => updateEffortBonus({ ...bonus, is_active: !bonus.is_active })}
-                                disabled={!!saving}
-                              >
-                                {bonus.is_active ? '👁️ Ocultar' : '👁️ Mostrar'}
-                              </Button>
-
-                              <Button
-                                variant="outline"
-                                className="text-xs py-1 px-3"
-                                onClick={() => updateEffortBonus(bonus)}
-                                disabled={!!saving}
-                              >
-                                💾 Actualizar Texto
-                              </Button>
-
-                              <Button
-                                variant="outline"
-                                className="text-xs py-1 px-3 text-red-500 border-red-500 hover:bg-red-500/10"
-                                onClick={() => handleDeleteBonus(bonus.id)}
-                                disabled={!!saving || processing}
-                              >
-                                🗑️ Eliminar
-                              </Button>
-                            </div>
-                          </div>
-
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                              <label className="block text-xs uppercase text-text-secondary mb-1">Título</label>
-                              <Input
-                                value={bonus.title}
-                                onChange={(e) => setEffortBonuses(prev => prev.map(b => b.id === bonus.id ? { ...b, title: e.target.value } : b))}
-                              />
-                            </div>
-                            <div>
-                              <label className="block text-xs uppercase text-text-secondary mb-1">Target</label>
-                              <Input
-                                value={bonus.target_kpi}
-                                onChange={(e) => setEffortBonuses(prev => prev.map(b => b.id === bonus.id ? { ...b, target_kpi: e.target.value } : b))}
-                              />
-                            </div>
-                            <div>
-                              <label className="block text-xs uppercase text-text-secondary mb-1">Nivel Desc.</label>
-                              <Input
-                                value={bonus.level_description}
-                                onChange={(e) => setEffortBonuses(prev => prev.map(b => b.id === bonus.id ? { ...b, level_description: e.target.value } : b))}
-                              />
-                            </div>
-                            <div>
-                              <label className="block text-xs uppercase text-text-secondary mb-1">Monto (Bs)</label>
-                              <Input
-                                type="number"
-                                value={bonus.amount_bs}
-                                onChange={(e) => setEffortBonuses(prev => prev.map(b => b.id === bonus.id ? { ...b, amount_bs: Number(e.target.value) } : b))}
-                              />
-                            </div>
-                            <div className="md:col-span-2">
-                              <label className="block text-xs uppercase text-text-secondary mb-1">Descripción</label>
-                              <textarea
-                                className="w-full bg-dark-bg border border-gold/30 rounded p-2 text-sm text-text-primary focus:border-gold outline-none"
-                                rows={2}
-                                value={bonus.requirement_description}
-                                onChange={(e) => setEffortBonuses(prev => prev.map(b => b.id === bonus.id ? { ...b, requirement_description: e.target.value } : b))}
-                              />
-                            </div>
-                          </div>
-                        </div>
-                      </Card>
-                    ))}
-                  </div>
-                </div>
               </div>
             )}
 
             {tab === 'tasks' && <TasksTab token={token} />}
+
+            {tab === 'roulette' && (
+              <Card title="Historial Ruleta Pagada" subtitle="Giros pagados por usuarios">
+                {rouletteLoading ? (
+                  <p className="text-gold text-center py-4">Cargando...</p>
+                ) : (
+                  <>
+                    {/* Estadísticas */}
+                    {rouletteStats && (
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mb-4">
+                        <div className="bg-white/5 rounded-lg p-3 text-center">
+                          <p className="text-[10px] text-white/50 uppercase">Total Giros</p>
+                          <p className="text-lg font-bold text-white">{rouletteStats.total_spins}</p>
+                        </div>
+                        <div className="bg-white/5 rounded-lg p-3 text-center">
+                          <p className="text-[10px] text-white/50 uppercase">Entradas</p>
+                          <p className="text-lg font-bold text-red-400">${rouletteStats.total_entries.toFixed(2)}</p>
+                        </div>
+                        <div className="bg-white/5 rounded-lg p-3 text-center">
+                          <p className="text-[10px] text-white/50 uppercase">Premios</p>
+                          <p className="text-lg font-bold text-green-400">${rouletteStats.total_prizes.toFixed(2)}</p>
+                        </div>
+                        <div className="bg-white/5 rounded-lg p-3 text-center">
+                          <p className="text-[10px] text-white/50 uppercase">Ganancia Plataforma</p>
+                          <p className={`text-lg font-bold ${rouletteStats.platform_profit >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                            ${rouletteStats.platform_profit.toFixed(2)}
+                          </p>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Lista de giros */}
+                    {rouletteSpins.length === 0 ? (
+                      <p className="text-white/50 text-center py-4 text-sm">No hay giros pagados aún</p>
+                    ) : (
+                      <div className="space-y-2">
+                        {rouletteSpins.map((spin) => (
+                          <div
+                            key={spin.id}
+                            className="flex items-center justify-between py-2 px-3 rounded-lg bg-white/5"
+                          >
+                            <div>
+                              <p className="text-xs font-medium text-white">
+                                {spin.full_name}
+                                <span className="text-white/40 ml-1">@{spin.username}</span>
+                              </p>
+                              <p className="text-[10px] text-white/50">
+                                Entrada: ${spin.entry_amount} |{' '}
+                                {new Date(spin.created_at).toLocaleDateString('es-BO', {
+                                  day: '2-digit',
+                                  month: 'short',
+                                  year: 'numeric',
+                                  hour: '2-digit',
+                                  minute: '2-digit',
+                                })}
+                              </p>
+                            </div>
+                            <div className="text-right">
+                              <span
+                                className="text-sm font-bold"
+                                style={{ color: spin.won ? '#00ff88' : '#ff6464' }}
+                              >
+                                {spin.prize_amount > 0 ? `+$${spin.prize_amount}` : '$0'}
+                              </span>
+                              <p
+                                className="text-[9px] font-medium"
+                                style={{ color: spin.won ? '#00ff88' : '#ff6464' }}
+                              >
+                                {spin.won ? 'Ganado' : 'Perdido'}
+                              </p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </>
+                )}
+              </Card>
+            )}
           </>
         )}
 

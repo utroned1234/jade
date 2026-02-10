@@ -137,7 +137,7 @@ export default function UserDetailModal({ userId, token, onClose }: UserDetailMo
                 </div>
                 <div>
                   <p className="text-xs text-text-secondary uppercase tracking-wider mb-1">Saldo</p>
-                  <p className="text-2xl font-bold text-gold">Bs {userDetail.balance.toFixed(2)}</p>
+                  <p className="text-2xl font-bold text-gold">${userDetail.balance.toFixed(2)}</p>
                 </div>
                 <div>
                   <p className="text-xs text-text-secondary uppercase tracking-wider mb-1">Código</p>
@@ -195,10 +195,10 @@ export default function UserDetailModal({ userId, token, onClose }: UserDetailMo
                               {purchase.vip_package_name}
                             </td>
                             <td className="py-3 px-2 text-right text-gold">
-                              Bs {purchase.investment_bs.toFixed(2)}
+                              ${purchase.investment_bs.toFixed(2)}
                             </td>
                             <td className="py-3 px-2 text-right text-gold-bright">
-                              Bs {purchase.daily_profit_bs.toFixed(2)}
+                              ${purchase.daily_profit_bs.toFixed(2)}
                             </td>
                             <td className="py-3 px-2 text-center">
                               <span className={`inline-block px-2 py-1 rounded text-xs font-semibold ${getStatusColor(purchase.status)}`}>

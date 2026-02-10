@@ -96,9 +96,9 @@ export default function MyPurchasesPage() {
       <ScreenshotProtection />
       <div className="max-w-screen-xl mx-auto p-6 space-y-6">
         <div className="text-center">
-          <h1 className="text-sm font-bold text-gradient-gold-blue">Mis VIPs</h1>
+          <h1 className="text-sm font-bold text-gradient-gold-blue">Mis JADE</h1>
           <p className="mt-2 text-text-secondary uppercase tracking-wider text-sm font-light">
-            Paquetes VIP adquiridos
+            Paquetes JADE adquiridos
           </p>
         </div>
 
@@ -131,20 +131,20 @@ export default function MyPurchasesPage() {
                     <div className="flex justify-between text-sm">
                       <span className="text-text-secondary">Inversión:</span>
                       <span className="font-medium text-text-primary">
-                        Bs {purchase.investment_bs.toFixed(2)}
+                        ${purchase.investment_bs.toFixed(2)}
                       </span>
                     </div>
                     <div className="flex justify-between text-sm">
                       <span className="text-text-secondary">Ganancia diaria:</span>
                       <span className="font-medium text-gold">
-                        Bs {purchase.daily_profit_bs.toFixed(2)}
+                        ${purchase.daily_profit_bs.toFixed(2)}
                       </span>
                     </div>
                     {purchase.status === 'ACTIVE' && (
                       <div className="flex justify-between text-sm">
                         <span className="text-text-secondary">Total ganado:</span>
                         <span className="font-bold text-gold-bright">
-                          Bs {purchase.total_earned_bs.toFixed(2)}
+                          ${purchase.total_earned_bs.toFixed(2)}
                         </span>
                       </div>
                     )}
@@ -164,7 +164,7 @@ export default function MyPurchasesPage() {
       </div>
 
       <p className="mt-6 text-xs text-text-secondary text-center">
-        © 2026 TeknolaApp. Todos los derechos reservados.
+        © 2026 JADE · Powered by Optiver. Todos los derechos reservados.
       </p>
 
       <BottomNav />

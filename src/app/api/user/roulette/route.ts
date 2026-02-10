@@ -1,22 +1,22 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { PrismaClient } from '@prisma/client'
+import { prisma } from '@/lib/db'
 import jwt from 'jsonwebtoken'
 
-const prisma = new PrismaClient()
 const JWT_SECRET = process.env.JWT_SECRET || 'secret'
-const MIN_INVESTMENT_FOR_ROULETTE = 2000 // Mínimo 2000 Bs para acceder a la ruleta
+const MIN_INVESTMENT_FOR_ROULETTE = 50 // Mínimo $50 USD (VIP 5+) para acceder a la ruleta
 
-// Premios disponibles (los mismos que en la ruleta del frontend)
+// Premios disponibles — deben coincidir con PURCHASE_PRIZES del frontend
 const PRIZES = [
-  { text: '5', value: 5, blocked: false },
-  { text: '20', value: 20, blocked: false },
-  { text: '50', value: 50, blocked: false },
-  { text: '100', value: 100, blocked: false },
-  { text: '80', value: 80, blocked: false },
-  { text: '200', value: 200, blocked: false },
-  { text: '300', value: 300, blocked: false },
-  { text: '500', value: 500, blocked: true },
-  { text: '1000', value: 1000, blocked: true }
+  { text: '$2', value: 2 },
+  { text: '$5', value: 5 },
+  { text: '$10', value: 10 },
+  { text: '$15', value: 15 },
+  { text: '$20', value: 20 },
+  { text: '$40', value: 40 },
+  { text: '$80', value: 80 },
+  { text: '$100', value: 100 },
+  { text: '$200', value: 200 },
+  { text: '$400', value: 400 },
 ]
 
 function getUserFromToken(request: NextRequest) {
@@ -40,7 +40,7 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    // Buscar compras ACTIVAS con inversión >= 2000 Bs que no hayan usado la ruleta
+    // Buscar compras ACTIVAS con inversión >= $2000 USD que no hayan usado la ruleta
     const eligiblePurchases = await prisma.purchase.findMany({
       where: {
         user_id: userId,
@@ -111,15 +111,12 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     const { purchase_id, prize_index } = body
 
-    // Validar que el premio existe y no está bloqueado
+    // Validar que el premio existe
     if (prize_index === undefined || prize_index < 0 || prize_index >= PRIZES.length) {
       return NextResponse.json({ error: 'Premio inválido' }, { status: 400 })
     }
 
     const prize = PRIZES[prize_index]
-    if (prize.blocked) {
-      return NextResponse.json({ error: 'Premio bloqueado' }, { status: 400 })
-    }
 
     // Buscar la compra elegible
     let purchase
@@ -158,7 +155,7 @@ export async function POST(request: NextRequest) {
 
     if (!purchase) {
       return NextResponse.json({
-        error: 'No tienes giros disponibles. Necesitas un paquete VIP activo de Bs 2000 o más.',
+        error: 'No tienes giros disponibles. Necesitas un paquete JADE 5 o superior activo.',
         no_spins: true
       }, { status: 403 })
     }
@@ -204,7 +201,7 @@ export async function POST(request: NextRequest) {
       prize_amount: prizeAmount,
       package_name: purchase.vip_package.name,
       remaining_spins: remainingSpins,
-      message: `¡Ganaste Bs ${prizeAmount}! El premio fue agregado a tu billetera.`
+      message: `¡Ganaste $${prizeAmount}! El premio fue agregado a tu billetera.`
     })
 
   } catch (error) {

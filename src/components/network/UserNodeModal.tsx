@@ -118,7 +118,7 @@ export default function UserNodeModal({ userId, token, onClose }: UserNodeModalP
               </div>
               <div className="bg-dark-card p-4 rounded-lg border border-gold/20 col-span-2">
                 <p className="text-xs text-text-secondary mb-1">Ganancias Totales</p>
-                <p className="text-2xl text-green-400 font-bold">Bs {userDetail.total_earnings.toFixed(2)}</p>
+                <p className="text-2xl text-green-400 font-bold">${userDetail.total_earnings.toFixed(2)}</p>
               </div>
             </div>
 
@@ -134,10 +134,10 @@ export default function UserNodeModal({ userId, token, onClose }: UserNodeModalP
 
             {/* VIP Packages */}
             <div>
-              <h3 className="text-lg font-bold text-gold mb-3">Paquetes VIP</h3>
+              <h3 className="text-lg font-bold text-gold mb-3">Paquetes JADE</h3>
               {userDetail.purchases.length === 0 ? (
                 <div className="bg-dark-card p-4 rounded-lg border border-gold/20 text-center">
-                  <p className="text-text-secondary text-sm">Sin paquetes VIP</p>
+                  <p className="text-text-secondary text-sm">Sin paquetes JADE</p>
                 </div>
               ) : (
                 <div className="space-y-3">
@@ -151,7 +151,7 @@ export default function UserNodeModal({ userId, token, onClose }: UserNodeModalP
                           </p>
                           <div className="mt-2">
                             <p className="text-xs text-text-secondary">Inversión</p>
-                            <p className="text-lg text-gold font-bold">Bs {purchase.investment_bs.toFixed(2)}</p>
+                            <p className="text-lg text-gold font-bold">${purchase.investment_bs.toFixed(2)}</p>
                           </div>
                         </div>
                         <div>

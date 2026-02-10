@@ -2,11 +2,11 @@ import type { Metadata, Viewport } from 'next'
 import './globals.css'
 import { ToastProvider } from '@/components/ui/Toast'
 import { ThemeProvider } from '@/context/ThemeContext'
-import CircuitBackground from '@/components/ui/CircuitBackground'
+import GlassBackground from '@/components/ui/GlassBackground'
 import LogoutButton from '@/components/ui/LogoutButton'
 
 export const viewport: Viewport = {
-  themeColor: '#020409',
+  themeColor: '#0A1A1A',
   width: 'device-width',
   initialScale: 1,
   maximumScale: 1,
@@ -51,23 +51,20 @@ export default function RootLayout({
 }) {
   return (
     <html lang="es">
-      <body className="font-inter bg-dark-bg text-text-primary antialiased">
+      <body className="font-outfit text-text-primary antialiased">
         <ToastProvider>
           <ThemeProvider>
-            {/* Fondo de circuito animado */}
-            <CircuitBackground />
+            {/* Fondo de cristal moderno */}
+            <GlassBackground />
 
             <div className="min-h-screen relative z-10">
-              <header className="sticky top-0 z-40 bg-transparent backdrop-blur-md">
-                <div className="mx-auto flex max-w-screen-xl items-center justify-between px-4 py-3">
-                  <div className="w-16" />
-                  <span className="text-sm font-bold tracking-[0.35em] text-gold" style={{ fontFamily: 'Orbitron, sans-serif' }}>
-                    TEKNOLAPP
-                  </span>
-                  <LogoutButton />
-                </div>
-              </header>
-              {children}
+              {/* Botón de logout flotante */}
+              <div className="fixed top-4 right-4 z-50">
+                <LogoutButton />
+              </div>
+              <main className="pb-20">
+                {children}
+              </main>
             </div>
           </ThemeProvider>
         </ToastProvider>

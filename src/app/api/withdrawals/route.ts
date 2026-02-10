@@ -43,17 +43,17 @@ export async function POST(req: NextRequest) {
     const { amount_bs, bank_name, qr_image_url, payout_method, phone_number } = await req.json()
 
     // Validar montos exactos permitidos
-    const allowedAmounts = [10, 50, 100, 200, 500, 1000]
+    const allowedAmounts = [5, 20, 50, 100, 500, 1000]
     if (!amount_bs || !allowedAmounts.includes(amount_bs)) {
       return NextResponse.json(
-        { error: 'Solo se permiten retiros en montos exactos: 10, 50, 100, 200, 500 o 1000 Bs' },
+        { error: 'Solo se permiten retiros de $5, $20, $50, $100, $500 o $1,000' },
         { status: 400 }
       )
     }
 
-    if (!bank_name || !qr_image_url || !payout_method || !phone_number) {
+    if (!payout_method || !qr_image_url) {
       return NextResponse.json(
-        { error: 'Datos invalidos. Debes subir tu imagen QR' },
+        { error: 'Debes ingresar tu ID de Binance y subir tu QR' },
         { status: 400 }
       )
     }
@@ -83,7 +83,7 @@ export async function POST(req: NextRequest) {
 
     if (activeVipCount === 0) {
       return NextResponse.json(
-        { error: 'Debes tener al menos un paquete VIP activo para solicitar retiros' },
+        { error: 'Debes tener al menos un paquete JADE activo para solicitar retiros' },
         { status: 403 }
       )
     }

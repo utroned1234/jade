@@ -1,56 +1,77 @@
 import Link from 'next/link'
-import Button from '@/components/ui/Button'
 
 export default function WelcomePage() {
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-6">
-      <div className="max-w-md w-full space-y-8 text-center">
-        <div className="space-y-6">
-          {/* Logo SVG de TEKNOLAPP */}
-          <svg width="120" height="120" viewBox="0 0 100 120" className="mx-auto">
-            <defs>
-              <linearGradient id="logoGradMain" x1="0%" y1="0%" x2="100%" y2="0%">
-                <stop offset="0%" style={{ stopColor: '#33e6ff', stopOpacity: 1 }} />
-                <stop offset="100%" style={{ stopColor: '#00d9ff', stopOpacity: 1 }} />
-              </linearGradient>
-            </defs>
-            <g transform="translate(0, 10)">
-              <path
-                d="M 10 10 L 90 10 L 80 25 L 60 25 L 60 35 L 40 35 L 40 25 L 20 25 Z"
-                fill="url(#logoGradMain)"
-              />
-              <path
-                d="M 35 40 H 65 L 60 85 L 50 95 L 40 85 Z"
-                fill="url(#logoGradMain)"
-              />
-              <rect x="42" y="50" width="16" height="25" fill="#000" opacity="0.3" />
-            </g>
-          </svg>
+    <div className="min-h-screen flex flex-col items-center justify-center p-6 relative overflow-hidden">
+      {/* Main content */}
+      <div className="max-w-sm w-full text-center relative z-10 space-y-10">
 
-          <h1 className="text-5xl font-bold text-gold uppercase tracking-widest text-center" style={{ fontFamily: 'Orbitron, sans-serif' }}>
-            TEKNOLAPP
-          </h1>
+        {/* Logo + Brand */}
+        <div className="space-y-6">
+          {/* Logo with glow */}
+          <div className="relative mx-auto w-32 h-32">
+            <div className="absolute inset-0 bg-emerald-400/20 rounded-full blur-2xl animate-pulse" />
+            <div className="absolute -inset-3 bg-emerald-500/10 rounded-full blur-xl" />
+            <img
+              src="https://i.ibb.co/pTMSXB7/Captura-de-pantalla-2026-02-08-111325-Photoroom.png"
+              alt="JADE Logo"
+              className="relative z-10 w-full h-full object-contain drop-shadow-[0_0_20px_rgba(52,211,153,0.3)]"
+            />
+          </div>
+
+          {/* Brand name */}
+          <div>
+            <h1 className="text-5xl font-bold tracking-widest font-outfit text-white">
+              J<span className="text-[#34D399]">A</span>DE
+            </h1>
+            <div className="mt-3 flex items-center justify-center gap-2">
+              <div className="h-px w-8 bg-gradient-to-r from-transparent to-[#34D399]/50" />
+              <p className="text-[#34D399]/70 text-xs font-medium uppercase tracking-[0.25em]">
+                Tu futuro financiero
+              </p>
+              <div className="h-px w-8 bg-gradient-to-l from-transparent to-[#34D399]/50" />
+            </div>
+          </div>
         </div>
 
-        <div className="space-y-4 pt-4">
+        {/* Buttons */}
+        <div className="space-y-3">
           <Link href="/login" className="block">
-            <Button variant="primary" className="w-full text-lg uppercase tracking-wider">
-              Iniciar Sesión
-            </Button>
+            <button
+              className="w-full py-4 px-6 rounded-2xl font-bold text-white text-base transition-all active:scale-95 hover:-translate-y-0.5"
+              style={{
+                background: 'linear-gradient(135deg, #10B981 0%, #059669 100%)',
+                boxShadow: '0 4px 20px rgba(16, 185, 129, 0.35)',
+              }}
+            >
+              Iniciar Sesion
+            </button>
           </Link>
 
           <Link href="/signup" className="block">
-            <Button variant="outline" className="w-full text-lg uppercase tracking-wider">
-              Registrarse
-            </Button>
+            <button
+              className="w-full py-4 px-6 rounded-2xl font-bold text-base transition-all active:scale-95 hover:-translate-y-0.5 border-2 border-[#34D399]/40 text-[#34D399] hover:bg-[#34D399]/10"
+            >
+              Crear Cuenta
+            </button>
           </Link>
         </div>
 
-        <p className="text-sm text-text-secondary pt-4 uppercase tracking-widest">
-          Tu camino hacia el éxito financiero
+        {/* Decorative dots */}
+        <div className="flex items-center justify-center gap-1.5 pt-2">
+          <div className="w-1.5 h-1.5 rounded-full bg-[#34D399]" />
+          <div className="w-1 h-1 rounded-full bg-[#34D399]/50" />
+          <div className="w-1 h-1 rounded-full bg-[#34D399]/30" />
+        </div>
+      </div>
+
+      {/* Footer */}
+      <div className="absolute bottom-4 left-0 right-0 text-center">
+        <p className="text-[10px] text-white/20">
+          &copy; 2026 JADE &middot; Powered by Optiver. Todos los derechos reservados.
         </p>
       </div>
-      <p className="mt-8 text-xs text-text-secondary">© 2026 TeknolaApp. Todos los derechos reservados.</p>
+
     </div>
   )
 }

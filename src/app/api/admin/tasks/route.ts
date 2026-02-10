@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
 import { requireAdmin } from '@/lib/auth/middleware'
 
-// GET - Get all 4 task images
+// GET - Get all 4 task videos
 export async function GET(req: NextRequest) {
   const authResult = requireAdmin(req)
   if ('error' in authResult) {
@@ -21,7 +21,7 @@ export async function GET(req: NextRequest) {
   }
 }
 
-// POST - Create or update a task image
+// POST - Create or update a task video URL
 export async function POST(req: NextRequest) {
   const authResult = requireAdmin(req)
   if ('error' in authResult) {
@@ -36,7 +36,13 @@ export async function POST(req: NextRequest) {
     }
 
     if (!image_url) {
-      return NextResponse.json({ error: 'URL de imagen requerida' }, { status: 400 })
+      return NextResponse.json({ error: 'URL de YouTube requerida' }, { status: 400 })
+    }
+
+    // Validate YouTube URL
+    const ytPattern = /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\s?#]+)/
+    if (!ytPattern.test(image_url)) {
+      return NextResponse.json({ error: 'URL de YouTube inválida' }, { status: 400 })
     }
 
     // Upsert - create or update
@@ -46,14 +52,14 @@ export async function POST(req: NextRequest) {
       create: { position, image_url, is_active: true },
     })
 
-    return NextResponse.json({ task, message: 'Tarea actualizada' })
+    return NextResponse.json({ task, message: 'Video actualizado' })
   } catch (error) {
     console.error('Create/update task error:', error)
     return NextResponse.json({ error: 'Error al guardar tarea' }, { status: 500 })
   }
 }
 
-// DELETE - Delete a task image
+// DELETE - Delete a task video
 export async function DELETE(req: NextRequest) {
   const authResult = requireAdmin(req)
   if ('error' in authResult) {
@@ -72,7 +78,7 @@ export async function DELETE(req: NextRequest) {
       where: { position },
     })
 
-    return NextResponse.json({ message: 'Tarea eliminada' })
+    return NextResponse.json({ message: 'Video eliminado' })
   } catch (error) {
     console.error('Delete task error:', error)
     return NextResponse.json({ error: 'Error al eliminar tarea' }, { status: 500 })

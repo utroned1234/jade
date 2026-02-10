@@ -271,8 +271,8 @@ export default function NetworkPage() {
 
       <div className="relative z-10 max-w-screen-2xl mx-auto h-full flex flex-col">
         {/* Header Flotante */}
-        <div className="fixed top-0 left-0 right-0 z-50 p-4 bg-gradient-to-b from-black/80 to-transparent pointer-events-none">
-          <div className="text-center pointer-events-auto mt-12">
+        <div className="fixed top-0 left-0 right-0 z-50 p-3 bg-gradient-to-b from-black/80 to-transparent pointer-events-none">
+          <div className="text-center pointer-events-auto mt-2">
             <h1 className="text-sm font-bold text-transparent bg-clip-text bg-gradient-to-r from-gold via-white to-gold animate-shine">
               Mi Red Global
             </h1>
@@ -289,10 +289,10 @@ export default function NetworkPage() {
           </div>
         </div>
 
-        {/* Área de Visualización del Árbol (Safe Mode / Modo Seguro) */}
-        <div className="flex-1 overflow-auto bg-slate-900 relative w-full h-full p-10">
+        {/* Área de Visualización del Árbol - Pantalla Completa */}
+        <div className="flex-1 overflow-auto relative w-full" style={{ minHeight: 'calc(100vh - 60px)' }}>
 
-          <div className="min-w-max min-h-full flex justify-center p-20 transition-transform duration-200 ease-out"
+          <div className="min-w-max min-h-full flex justify-center pt-32 pb-10 px-4 transition-transform duration-200 ease-out"
             style={{ transform: `scale(${zoom / 100})`, transformOrigin: 'top center' }}>
             {network ? (
               <div className="flex flex-col items-center">
@@ -361,7 +361,7 @@ export default function NetworkPage() {
               {/* VIP Packages List */}
               {selectedUser.vip_packages && selectedUser.vip_packages.length > 0 && (
                 <div className="space-y-2 max-h-[150px] overflow-y-auto">
-                  <p className="text-xs text-text-secondary font-bold uppercase tracking-wider sticky top-0 bg-dark-card/95 py-1">Paquetes VIP</p>
+                  <p className="text-xs text-text-secondary font-bold uppercase tracking-wider sticky top-0 bg-dark-card/95 py-1">Paquetes JADE</p>
                   {selectedUser.vip_packages.map((pkg, idx) => (
                     <div key={idx} className="flex justify-between items-center p-2 rounded bg-white/5 border border-white/5">
                       <span className="text-sm text-white font-medium">{pkg.name}</span>
@@ -381,6 +381,10 @@ export default function NetworkPage() {
           </Card>
         </div>
       )}
+
+      <p className="mt-6 text-xs text-white/30 text-center">
+        © 2026 JADE · Powered by Optiver. Todos los derechos reservados.
+      </p>
 
       <BottomNav />
     </div>

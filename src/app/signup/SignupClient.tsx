@@ -83,12 +83,64 @@ export default function SignupClient({
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-6">
-      <div className="max-w-md w-full space-y-8">
-        <div className="text-center">
-          <h1 className="text-4xl font-bold text-gold gold-glow">Registro</h1>
-          <p className="mt-2 text-text-secondary uppercase tracking-wider text-sm font-light">
-            Únete a la comunidad VIP
+      <div className="max-w-md w-full space-y-6">
+        {/* Logo + Info */}
+        <div className="text-center space-y-4">
+          <div className="relative mx-auto w-24 h-24">
+            <div className="absolute inset-0 bg-emerald-400/20 rounded-full blur-2xl animate-pulse" />
+            <img
+              src="https://i.ibb.co/pTMSXB7/Captura-de-pantalla-2026-02-08-111325-Photoroom.png"
+              alt="JADE Logo"
+              className="relative z-10 w-full h-full object-contain drop-shadow-[0_0_15px_rgba(52,211,153,0.3)]"
+            />
+          </div>
+          <div>
+            <h1 className="text-3xl font-bold tracking-widest text-white">
+              J<span className="text-[#34D399]">A</span>DE
+            </h1>
+            <p className="mt-2 text-white/40 text-[10px] uppercase tracking-widest">
+              Tu futuro financiero
+            </p>
+          </div>
+
+          {/* Resumen de lo que verás */}
+          <div className="grid grid-cols-2 gap-2 max-w-xs mx-auto">
+            <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-white/5 border border-white/8">
+              <span className="text-base">💰</span>
+              <span className="text-[10px] text-white/70 leading-tight">Ganancias diarias en USDT</span>
+            </div>
+            <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-white/5 border border-white/8">
+              <span className="text-base">👥</span>
+              <span className="text-[10px] text-white/70 leading-tight">Red de referidos 5 niveles</span>
+            </div>
+            <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-white/5 border border-white/8">
+              <span className="text-base">📊</span>
+              <span className="text-[10px] text-white/70 leading-tight">Panel con historial de ingresos</span>
+            </div>
+            <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-white/5 border border-white/8">
+              <span className="text-base">🎰</span>
+              <span className="text-[10px] text-white/70 leading-tight">Ruleta de premios diarios</span>
+            </div>
+          </div>
+
+          <p className="text-white/40 text-[9px] leading-relaxed max-w-xs mx-auto text-center">
+            Compra paquetes JADE, completa tareas diarias y activa tus ganancias. Retira tus fondos cuando quieras.
           </p>
+
+          <p className="text-white/35 text-[9px] leading-relaxed max-w-xs mx-auto text-center">
+            Obtén hasta un 2.5% diario de retorno sobre tu inversión. Invita amigos y gana bonos de patrocinio en 5 niveles de profundidad.
+          </p>
+
+          <div className="max-w-xs mx-auto px-3 py-2 rounded-xl bg-[#34D399]/8 border border-[#34D399]/15">
+            <p className="text-[#34D399]/80 text-[9px] leading-relaxed text-center">
+              Solo por registrarte, puedes recibir ganancias cada vez que tu patrocinador active un paquete. Tu red trabaja por ti.
+            </p>
+          </div>
+        </div>
+
+        {/* Titulo Registro */}
+        <div className="text-center">
+          <h2 className="text-xl font-bold text-gold">Crear Cuenta</h2>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
@@ -162,7 +214,7 @@ export default function SignupClient({
         </form>
       </div>
       <p className="mt-8 text-xs text-text-secondary">
-        © 2026 TeknolaApp. Todos los derechos reservados.
+        © 2026 JADE · Powered by Optiver. Todos los derechos reservados.
       </p>
 
       {/* Modal de registro exitoso */}

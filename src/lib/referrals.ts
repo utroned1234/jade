@@ -10,8 +10,8 @@ async function applyReferralBonuses(
   level: number,
   multiplier: number
 ): Promise<void> {
-  // Detener si excede 3 niveles (sistema de 3 niveles de patrocinio)
-  if (level > 3) return
+  // Detener si excede 5 niveles (sistema de 5 niveles de patrocinio)
+  if (level > 5) return
 
   // Buscar el usuario y su patrocinador
   const user = await client.user.findUnique({
@@ -22,40 +22,64 @@ async function applyReferralBonuses(
   // Si no tiene patrocinador, terminar la cadena
   if (!user || !user.sponsor_id) return
 
-  // Buscar la regla de bono para este nivel
-  const bonusRule = await client.referralBonusRule.findUnique({
-    where: { level },
-  })
+  const actionLabel = multiplier < 0 ? 'Reverso' : 'Bono'
 
-  // Siempre intentar pagar el bono, incluso si el porcentaje es 0
-  // Esto asegura que el registro quede en el ledger para auditoría
-  if (bonusRule) {
-    const bonusAmount = (investmentBs * bonusRule.percentage) / 100
-    const amount = bonusAmount * multiplier
-    const actionLabel = multiplier < 0 ? 'Reverso' : 'Bono'
-
-    // Pagar el bono (puede ser 0 si percentage es 0)
+  // Nivel 1: Lógica especial - 10% directo + 5% repartido entre referidos directos
+  if (level === 1) {
+    // 10% directo al patrocinador
+    const directBonus = (investmentBs * 10) / 100
     await client.walletLedger.create({
       data: {
         user_id: user.sponsor_id,
         type: 'REFERRAL_BONUS',
-        amount_bs: amount,
-        description: `${actionLabel} de referido nivel ${level} (${bonusRule.percentage}%)`,
+        amount_bs: directBonus * multiplier,
+        description: `${actionLabel} de referido nivel 1 (10% directo)`,
       },
     })
+
+    // 5% a repartir entre todos los referidos directos del patrocinador
+    const sharedBonusTotal = (investmentBs * 5) / 100
+
+    // Buscar todos los referidos directos del patrocinador
+    const directReferrals = await client.user.findMany({
+      where: { sponsor_id: user.sponsor_id },
+      select: { id: true },
+    })
+
+    if (directReferrals.length > 0) {
+      const bonusPerReferral = sharedBonusTotal / directReferrals.length
+
+      // Pagar a cada referido directo su parte
+      for (const referral of directReferrals) {
+        await client.walletLedger.create({
+          data: {
+            user_id: referral.id,
+            type: 'REFERRAL_BONUS',
+            amount_bs: bonusPerReferral * multiplier,
+            description: `${actionLabel} compartido nivel 1 (5% / ${directReferrals.length} referidos)`,
+          },
+        })
+      }
+    }
   } else {
-    // Si no existe regla de bono para este nivel, registrar advertencia
-    console.warn(`⚠️ No existe regla de bono para nivel ${level}. Creando entrada con 0%.`)
-
-    // Crear entrada con 0 para mantener consistencia
-    await client.walletLedger.create({
-      data: {
-        user_id: user.sponsor_id,
-        type: 'REFERRAL_BONUS',
-        amount_bs: 0,
-        description: `Bono de referido nivel ${level} (0% - regla no configurada)`,
-      },
+    // Niveles 2-5: Lógica normal
+    const bonusRule = await client.referralBonusRule.findUnique({
+      where: { level },
     })
+
+    if (bonusRule) {
+      const bonusAmount = (investmentBs * bonusRule.percentage) / 100
+      const amount = bonusAmount * multiplier
+
+      await client.walletLedger.create({
+        data: {
+          user_id: user.sponsor_id,
+          type: 'REFERRAL_BONUS',
+          amount_bs: amount,
+          description: `${actionLabel} de referido nivel ${level} (${bonusRule.percentage}%)`,
+        },
+      })
+    }
   }
 
   // Continuar con el siguiente nivel en la cadena

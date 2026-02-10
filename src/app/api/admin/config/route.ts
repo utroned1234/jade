@@ -21,6 +21,8 @@ export async function GET(request: NextRequest) {
         data: {
           id: 1,
           whatsapp_number: '',
+          binance_wallet_id: '',
+          binance_qr_url: '',
         },
       })
     }
@@ -41,14 +43,21 @@ export async function PUT(request: NextRequest) {
 
   try {
     const body = await request.json()
-    const { whatsapp_number } = body
+    const { whatsapp_number, binance_wallet_id, binance_qr_url } = body
+
+    const updateData: Record<string, string> = {}
+    if (whatsapp_number !== undefined) updateData.whatsapp_number = whatsapp_number || ''
+    if (binance_wallet_id !== undefined) updateData.binance_wallet_id = binance_wallet_id || ''
+    if (binance_qr_url !== undefined) updateData.binance_qr_url = binance_qr_url || ''
 
     const config = await prisma.globalConfig.upsert({
       where: { id: 1 },
-      update: { whatsapp_number: whatsapp_number || '' },
+      update: updateData,
       create: {
         id: 1,
         whatsapp_number: whatsapp_number || '',
+        binance_wallet_id: binance_wallet_id || '',
+        binance_qr_url: binance_qr_url || '',
       },
     })
 

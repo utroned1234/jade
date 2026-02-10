@@ -69,7 +69,7 @@ export async function GET(req: NextRequest) {
       const dailyProfits = await prisma.walletLedger.findMany({
         where: {
           user_id: authResult.user.userId,
-          type: 'DAILY_PROFIT',
+          type: { in: ['DAILY_PROFIT', 'REFERRAL_BONUS', 'ADJUSTMENT', 'ROULETTE_WIN', 'ROULETTE_PAID_WIN'] },
           created_at: { gte: sevenDaysAgo },
         },
         select: {
@@ -154,12 +154,13 @@ export async function GET(req: NextRequest) {
     }
 
     let referralBonusTotal = referralBonus
-    let referralBonusLevels: { level: number; amount_bs: number }[] = []
+    let referralBonusLevels: { level: number; amount_bs: number; percentage: number }[] = []
     try {
-      // Sistema de bonos de patrocinio con 3 niveles
+      // Sistema de bonos de patrocinio con 5 niveles
       const bonusRules = await prisma.referralBonusRule.findMany({
-        where: { level: { in: [1, 2, 3] } },
+        where: { level: { in: [1, 2, 3, 4, 5] } },
         select: { level: true, percentage: true },
+        orderBy: { level: 'asc' },
       })
 
       const ruleMap = new Map(bonusRules.map((r) => [r.level, r.percentage]))
@@ -189,19 +190,38 @@ export async function GET(req: NextRequest) {
         : []
       const level3Ids = level3Users.map((u) => u.id)
 
-      // Solo 3 niveles de patrocinio
+      // Nivel 4: Referidos del nivel 3
+      const level4Users = level3Ids.length
+        ? await prisma.user.findMany({
+          where: { sponsor_id: { in: level3Ids } },
+          select: { id: true },
+        })
+        : []
+      const level4Ids = level4Users.map((u) => u.id)
+
+      // Nivel 5: Referidos del nivel 4
+      const level5Users = level4Ids.length
+        ? await prisma.user.findMany({
+          where: { sponsor_id: { in: level4Ids } },
+          select: { id: true },
+        })
+        : []
+      const level5Ids = level5Users.map((u) => u.id)
+
       const levels: { level: number; ids: string[] }[] = [
         { level: 1, ids: level1Ids },
         { level: 2, ids: level2Ids },
         { level: 3, ids: level3Ids },
+        { level: 4, ids: level4Ids },
+        { level: 5, ids: level5Ids },
       ]
 
       let computedTotal = 0
-      const computedLevels: { level: number; amount_bs: number }[] = []
+      const computedLevels: { level: number; amount_bs: number; percentage: number }[] = []
       for (const item of levels) {
         const percentage = ruleMap.get(item.level) || 0
         if (!percentage || item.ids.length === 0) {
-          computedLevels.push({ level: item.level, amount_bs: 0 })
+          computedLevels.push({ level: item.level, amount_bs: 0, percentage })
           continue
         }
 
@@ -212,7 +232,7 @@ export async function GET(req: NextRequest) {
         const base = sum._sum.investment_bs || 0
         const amount = (base * percentage) / 100
         computedTotal += amount
-        computedLevels.push({ level: item.level, amount_bs: amount })
+        computedLevels.push({ level: item.level, amount_bs: amount, percentage })
       }
 
       referralBonusTotal = computedTotal
@@ -226,7 +246,7 @@ export async function GET(req: NextRequest) {
       const totalEarnings = await prisma.walletLedger.aggregate({
         where: {
           user_id: authResult.user.userId,
-          type: { in: ['DAILY_PROFIT', 'REFERRAL_BONUS', 'ADJUSTMENT'] },
+          type: { in: ['DAILY_PROFIT', 'REFERRAL_BONUS', 'ADJUSTMENT', 'ROULETTE_WIN', 'ROULETTE_PAID_WIN'] },
         },
         _sum: { amount_bs: true },
       })
@@ -300,18 +320,45 @@ export async function GET(req: NextRequest) {
       console.error('Dashboard banners error:', error)
     }
 
-    let effortBonuses: any[] = []
+    // Bono compartido: lo que el usuario recibe del 5% repartido por su patrocinador
+    let sharedBonus = 0
+    let sharedBonusEntries: { amount_bs: number; description: string; created_at: Date }[] = []
     try {
-      effortBonuses = await prisma.effortBonus.findMany({
-        where: { is_active: true },
-        orderBy: { sort_order: 'asc' },
+      const sharedLedgers = await prisma.walletLedger.findMany({
+        where: {
+          user_id: authResult.user.userId,
+          type: 'REFERRAL_BONUS',
+          description: { contains: 'compartido' },
+        },
+        select: {
+          amount_bs: true,
+          description: true,
+          created_at: true,
+        },
+        orderBy: { created_at: 'desc' },
       })
-      // Init defaults if empty (fail-safe for frontend display)
-      if (effortBonuses.length === 0) {
-        // We rely on admin/api access to populate defaults mainly, or seed, but empty is safe to return as []
+      sharedBonus = sharedLedgers.reduce((sum, entry) => sum + entry.amount_bs, 0)
+      sharedBonusEntries = sharedLedgers
+    } catch (error) {
+      console.error('Dashboard shared bonus error:', error)
+    }
+
+    // Buscar nombre del patrocinador
+    let sponsorName: string | null = null
+    try {
+      const currentUser = await prisma.user.findUnique({
+        where: { id: authResult.user.userId },
+        select: { sponsor_id: true },
+      })
+      if (currentUser?.sponsor_id) {
+        const sponsor = await prisma.user.findUnique({
+          where: { id: currentUser.sponsor_id },
+          select: { full_name: true, username: true },
+        })
+        sponsorName = sponsor?.full_name || sponsor?.username || null
       }
     } catch (error) {
-      console.error('Dashboard effort bonuses error:', error)
+      console.error('Dashboard sponsor name error:', error)
     }
 
     let latestUsers: any[] = []
@@ -343,7 +390,7 @@ export async function GET(req: NextRequest) {
       latestUsers = users.map(u => {
         // Calcular ganancias totales (solo tipos de ganancia)
         const totalEarnings = u.wallet_ledger
-          .filter(w => ['DAILY_PROFIT', 'REFERRAL_BONUS', 'ADJUSTMENT'].includes(w.type))
+          .filter(w => ['DAILY_PROFIT', 'REFERRAL_BONUS', 'ADJUSTMENT', 'ROULETTE_WIN', 'ROULETTE_PAID_WIN'].includes(w.type))
           .reduce((sum, w) => sum + (w.amount_bs || 0), 0)
 
         // Calcular balance de billetera (todas las transacciones)
@@ -392,9 +439,11 @@ export async function GET(req: NextRequest) {
       banners_top: bannersTop,
       banners_bottom: bannersBottom,
       announcements,
-      effort_bonuses: effortBonuses,
       latest_users: latestUsers,
       earnings_history: earningsHistory,
+      shared_bonus: sharedBonus,
+      shared_bonus_entries: sharedBonusEntries.slice(0, 10),
+      sponsor_name: sponsorName,
     }
 
     setDashboardCache(cacheKey, payload)

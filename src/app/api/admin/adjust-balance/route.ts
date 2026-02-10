@@ -27,7 +27,7 @@ export async function POST(req: NextRequest) {
         user_id,
         type: 'ADJUSTMENT',
         amount_bs: amountNum,
-        description: description || `Ajuste manual por admin: ${amountNum > 0 ? '+' : ''}${amountNum} Bs`,
+        description: description || `Ajuste manual por admin: ${amountNum > 0 ? '+' : ''}$${amountNum}`,
       },
     })
 

@@ -12,7 +12,7 @@ export function generateResetToken(): string {
 }
 
 export function formatCurrency(amount: number): string {
-  return `Bs ${amount.toFixed(2)}`
+  return `$${amount.toFixed(2)}`
 }
 
 export function calculatePercentage(profit: number, investment: number): number {

@@ -103,16 +103,16 @@ export default function TablaPage() {
                   {packages.map((pkg) => (
                     <tr key={`table-${pkg.id}`} className="border-b border-gold border-opacity-10">
                       <td className="py-1.5 px-2 text-text-primary font-medium">{pkg.name}</td>
-                      <td className="py-1.5 px-2 text-text-secondary text-right">Bs {pkg.investment_bs.toFixed(0)}</td>
-                      <td className="py-1.5 px-2 text-text-secondary text-right">Bs {pkg.daily_profit_bs.toFixed(2)}</td>
+                      <td className="py-1.5 px-2 text-text-secondary text-right">${pkg.investment_bs.toFixed(0)}</td>
+                      <td className="py-1.5 px-2 text-text-secondary text-right">${pkg.daily_profit_bs.toFixed(2)}</td>
                       <td className="py-1.5 px-2 text-green-400 text-right font-medium">
-                        Bs {calculateMonthly(pkg.daily_profit_bs)}
+                        ${calculateMonthly(pkg.daily_profit_bs)}
                       </td>
                       <td className="py-1.5 px-2 text-gold text-right font-bold">
-                        Bs {calculateYearly(pkg.daily_profit_bs)}
+                        ${calculateYearly(pkg.daily_profit_bs)}
                       </td>
                       <td className="py-1.5 px-2 text-gold-bright text-right font-bold">
-                        Bs {calculateTwoYears(pkg.daily_profit_bs)}
+                        ${calculateTwoYears(pkg.daily_profit_bs)}
                       </td>
                     </tr>
                   ))}
@@ -150,7 +150,7 @@ export default function TablaPage() {
                       <td className="py-1.5 px-2 text-center text-green-400 font-bold">{rule.percentage}%</td>
                       {packages.map((pkg) => (
                         <td key={`bonus-${rule.id}-${pkg.id}`} className="py-1.5 px-2 text-text-secondary text-right">
-                          Bs {((pkg.investment_bs * rule.percentage) / 100).toFixed(2)}
+                          ${((pkg.investment_bs * rule.percentage) / 100).toFixed(2)}
                         </td>
                       ))}
                     </tr>
@@ -192,11 +192,11 @@ export default function TablaPage() {
                           </td>
                           {packages.map((pkg) => (
                             <td key={`example-${rule.id}-${pkg.id}`} className="py-1.5 px-2 text-green-400 text-right">
-                              Bs {(((pkg.investment_bs * rule.percentage) / 100) * 5).toFixed(2)}
+                              ${(((pkg.investment_bs * rule.percentage) / 100) * 5).toFixed(2)}
                             </td>
                           ))}
                           <td className="py-1.5 px-2 text-gold-bright text-right font-bold">
-                            Bs {totalByLevel.toFixed(2)}
+                            ${totalByLevel.toFixed(2)}
                           </td>
                         </tr>
                       )
@@ -212,12 +212,12 @@ export default function TablaPage() {
                         )
                         return (
                           <td key={`total-pkg-${pkg.id}`} className="py-2 px-2 text-gold text-right font-bold">
-                            Bs {totalByPackage.toFixed(2)}
+                            ${totalByPackage.toFixed(2)}
                           </td>
                         )
                       })}
                       <td className="py-2 px-2 text-gold-bright text-right font-bold text-sm">
-                        Bs {bonusRules.reduce((sum, rule) =>
+                        ${bonusRules.reduce((sum, rule) =>
                           sum + packages.reduce((pkgSum, pkg) =>
                             pkgSum + ((pkg.investment_bs * rule.percentage) / 100) * 5, 0
                           ), 0
@@ -229,7 +229,7 @@ export default function TablaPage() {
               </div>
 
               <p className="text-xs text-text-secondary mt-3 italic">
-                * Los bonos se pagan una sola vez cuando tus referidos activan su paquete VIP.
+                * Los bonos se pagan una sola vez cuando tus referidos activan su paquete JADE.
               </p>
             </div>
           </div>
@@ -237,7 +237,7 @@ export default function TablaPage() {
       </div>
 
       <p className="mt-6 text-xs text-text-secondary text-center">
-        © 2026 TeknolaApp. Todos los derechos reservados.
+        © 2026 JADE · Powered by Optiver. Todos los derechos reservados.
       </p>
 
       <BottomNav />

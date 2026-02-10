@@ -31,7 +31,7 @@ export async function POST(req: NextRequest) {
 
     if (existingPackage) {
       return NextResponse.json(
-        { error: 'Ya tienes una compra activa o pendiente de este paquete VIP' },
+        { error: 'Ya tienes una compra activa o pendiente de este paquete JADE' },
         { status: 400 }
       )
     }

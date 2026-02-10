@@ -44,23 +44,23 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-6">
-      <div className="max-w-md w-full space-y-8">
-        <div className="text-center">
-          <h1 className="text-4xl font-bold text-gradient-gold-blue">Bienvenido</h1>
-          <p className="mt-2 text-text-secondary uppercase tracking-wider text-sm font-light">
+    <div className="min-h-[calc(100vh-80px)] flex items-center justify-center p-6">
+      <div className="glass-card max-w-md w-full p-8 md:p-10 animate-float">
+        <div className="text-center mb-8">
+          <h1 className="text-3xl font-bold text-text-primary mb-2 font-outfit">Bienvenido</h1>
+          <p className="text-text-secondary text-sm font-medium">
             Inicia sesión en tu cuenta
           </p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          <Input
-            label="Usuario o Email"
-            type="text"
-            required
-            value={formData.identifier}
-            onChange={(e) => setFormData({ ...formData, identifier: e.target.value })}
-          />
+            <Input
+              label="Telefono o Email"
+              type="text"
+              required
+              value={formData.identifier}
+              onChange={(e) => setFormData({ ...formData, identifier: e.target.value })}
+            />
 
           <Input
             label="Contraseña"
@@ -71,31 +71,31 @@ export default function LoginPage() {
           />
 
           {error && (
-            <div className="bg-red-500 bg-opacity-10 border border-red-500 text-red-500 px-4 py-3 rounded-btn">
+            <div className="bg-red-50 text-red-600 border border-red-200 px-4 py-3 rounded-xl text-sm font-medium">
               {error}
             </div>
           )}
 
           <div className="text-right">
-            <Link href="/forgot-password" className="text-sm text-blue-bright hover:text-gold">
+            <Link href="/forgot-password" className="text-sm text-primary hover:text-primary-dark font-medium transition-colors">
               ¿Olvidaste tu contraseña?
             </Link>
           </div>
 
-          <Button type="submit" variant="primary" className="w-full" disabled={loading}>
+          <Button type="submit" variant="primary" className="w-full shadow-glow" disabled={loading}>
             {loading ? 'Iniciando...' : 'Iniciar Sesión'}
           </Button>
 
-          <p className="text-center text-text-secondary">
+          <p className="text-center text-text-secondary text-sm">
             ¿No tienes cuenta?{' '}
-            <Link href="/signup" className="text-blue-bright hover:text-gold">
+            <Link href="/signup" className="text-primary hover:text-primary-dark font-bold transition-colors">
               Regístrate
             </Link>
           </p>
         </form>
 
         <p className="mt-8 text-xs text-text-secondary text-center">
-          © 2026 TeknolaApp. Todos los derechos reservados.
+          © 2026 JADE · Powered by Optiver. Todos los derechos reservados.
         </p>
       </div>
     </div>

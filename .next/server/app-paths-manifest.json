@@ -1,0 +1,11 @@
+{
+  "/login/page": "app/login/page.js",
+  "/api/dashboard/route": "app/api/dashboard/route.js",
+  "/api/user/roulette/route": "app/api/user/roulette/route.js",
+  "/api/user/activate-daily-profit/route": "app/api/user/activate-daily-profit/route.js",
+  "/api/user/tasks/route": "app/api/user/tasks/route.js",
+  "/home/page": "app/home/page.js",
+  "/api/user/roulette/paid/route": "app/api/user/roulette/paid/route.js",
+  "/api/public/whatsapp/route": "app/api/public/whatsapp/route.js",
+  "/tareas/page": "app/tareas/page.js"
+}

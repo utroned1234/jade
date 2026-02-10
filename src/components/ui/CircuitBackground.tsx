@@ -49,7 +49,7 @@ export default function CircuitBackground() {
       const path = document.createElementNS(svgNS, "path")
       path.setAttribute("d", pathD)
       path.setAttribute("fill", "none")
-      path.setAttribute("stroke", "#0066ff")
+      path.setAttribute("stroke", "#10B981")
       path.setAttribute("stroke-width", "1")
       path.style.opacity = String(0.05 + Math.random() * 0.1)
       svg.appendChild(path)
@@ -57,8 +57,8 @@ export default function CircuitBackground() {
       // Partícula luminosa
       const circle = document.createElementNS(svgNS, "circle")
       circle.setAttribute("r", "1.5")
-      circle.setAttribute("fill", "#00ffff")
-      circle.style.filter = "drop-shadow(0 0 2px #fff)"
+      circle.setAttribute("fill", "#6EE7B7")
+      circle.style.filter = "drop-shadow(0 0 2px #10B981)"
       circle.style.opacity = "0.4"
 
       const animateMotion = document.createElementNS(svgNS, "animateMotion")
@@ -74,7 +74,7 @@ export default function CircuitBackground() {
       endNode.setAttribute("cx", String(currentX))
       endNode.setAttribute("cy", String(currentY))
       endNode.setAttribute("r", "1")
-      endNode.setAttribute("fill", "#0088ff")
+      endNode.setAttribute("fill", "#10B981")
       endNode.setAttribute("opacity", "0.25")
       svg.appendChild(endNode)
     }
@@ -92,25 +92,17 @@ export default function CircuitBackground() {
 
   return (
     <>
-      {/* Imagen de fondo global */}
-      <div
-        className="fixed inset-0 z-[-1] pointer-events-none bg-cover bg-center bg-no-repeat"
-        style={{
-          backgroundImage: "url('https://i.ibb.co/7Jc7tLNy/unnamed.jpg')",
-          opacity: 0.4
-        }}
-      />
-      {/* Overlay oscuro para mezclar la imagen con el tema */}
+      {/* Overlay de fondo */}
       <div
         className="fixed inset-0 z-[-1] pointer-events-none"
-        style={{ backgroundColor: 'rgba(2, 4, 9, 0.85)' }}
+        style={{ backgroundColor: 'transparent' }}
       />
 
       {/* Contenedor del circuito SVG */}
       <div
         ref={containerRef}
         className="fixed inset-0 z-0 pointer-events-none"
-        style={{ backgroundColor: 'transparent' }} // Transparente para ver la imagen detrás
+        style={{ backgroundColor: 'transparent' }}
       />
 
       {/* Rayos de energía horizontales */}
@@ -118,7 +110,7 @@ export default function CircuitBackground() {
         className="fixed left-0 w-full h-0.5 z-0 pointer-events-none"
         style={{
           top: '40%',
-          background: 'linear-gradient(90deg, transparent, rgba(0, 255, 255, 0.3), transparent)',
+          background: 'linear-gradient(90deg, transparent, rgba(16, 185, 129, 0.3), transparent)',
           filter: 'blur(3px)',
           animation: 'streamPass 7s infinite cubic-bezier(0.4, 0.0, 0.2, 1)',
         }}
@@ -127,7 +119,7 @@ export default function CircuitBackground() {
         className="fixed left-0 w-full h-0.5 z-0 pointer-events-none"
         style={{
           top: '60%',
-          background: 'linear-gradient(90deg, transparent, rgba(0, 255, 255, 0.25), transparent)',
+          background: 'linear-gradient(90deg, transparent, rgba(16, 185, 129, 0.25), transparent)',
           filter: 'blur(3px)',
           animation: 'streamPass 7s infinite cubic-bezier(0.4, 0.0, 0.2, 1)',
           animationDelay: '2s',
@@ -138,7 +130,7 @@ export default function CircuitBackground() {
         style={{
           top: '30%',
           height: '2px',
-          background: 'linear-gradient(90deg, transparent, rgba(0, 255, 255, 0.2), transparent)',
+          background: 'linear-gradient(90deg, transparent, rgba(16, 185, 129, 0.2), transparent)',
           filter: 'blur(3px)',
           animation: 'streamPass 7s infinite cubic-bezier(0.4, 0.0, 0.2, 1)',
           animationDelay: '4s',

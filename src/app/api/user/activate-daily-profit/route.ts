@@ -140,7 +140,7 @@ export async function POST(req: NextRequest) {
     // Verificar si tiene compras activas
     if (user.purchases.length === 0) {
       return NextResponse.json(
-        { error: 'No tienes paquetes VIP activos' },
+        { error: 'No tienes paquetes JADE activos' },
         { status: 400 }
       )
     }

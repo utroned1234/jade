@@ -1,9 +1,8 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import Card from '@/components/ui/Card'
 import Button from '@/components/ui/Button'
-import Image from 'next/image'
 
 interface Task {
   id: number
@@ -16,15 +15,18 @@ interface TasksTabProps {
   token: string
 }
 
+function extractVideoId(url: string): string | null {
+  const match = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\s?#]+)/)
+  return match ? match[1] : null
+}
+
 export default function TasksTab({ token }: TasksTabProps) {
   const [tasks, setTasks] = useState<Task[]>([])
   const [loading, setLoading] = useState(true)
-  const [uploading, setUploading] = useState<number | null>(null)
+  const [saving, setSaving] = useState<number | null>(null)
+  const [urls, setUrls] = useState<{ [key: number]: string }>({})
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
-
-  // Refs for file inputs
-  const fileInputRefs = useRef<{ [key: number]: HTMLInputElement | null }>({})
 
   useEffect(() => {
     fetchTasks()
@@ -38,6 +40,11 @@ export default function TasksTab({ token }: TasksTabProps) {
       const data = await res.json()
       if (res.ok) {
         setTasks(data.tasks || [])
+        const urlMap: { [key: number]: string } = {}
+        for (const task of data.tasks || []) {
+          urlMap[task.position] = task.image_url
+        }
+        setUrls(urlMap)
       }
     } catch (err) {
       console.error('Error fetching tasks:', err)
@@ -46,69 +53,49 @@ export default function TasksTab({ token }: TasksTabProps) {
     }
   }
 
-  const handleButtonClick = (position: number) => {
-    // Trigger file input click
-    fileInputRefs.current[position]?.click()
-  }
+  const handleSave = async (position: number) => {
+    const url = urls[position]?.trim()
+    if (!url) {
+      setError('Ingresa una URL de YouTube')
+      return
+    }
 
-  const handleFileChange = async (position: number, e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (!file) return
+    const videoId = extractVideoId(url)
+    if (!videoId) {
+      setError('URL de YouTube invalida. Usa formato: https://www.youtube.com/watch?v=...')
+      return
+    }
 
-    setUploading(position)
+    setSaving(position)
     setError(null)
     setSuccess(null)
 
     try {
-      // First upload the file
-      const formData = new FormData()
-      formData.append('file', file)
-
-      const uploadRes = await fetch('/api/upload', {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${token}` },
-        body: formData,
-      })
-
-      if (!uploadRes.ok) {
-        const errData = await uploadRes.json()
-        throw new Error(errData.error || 'Error al subir imagen')
-      }
-
-      const uploadData = await uploadRes.json()
-      const imageUrl = uploadData.url
-
-      // Then save the task
       const res = await fetch('/api/admin/tasks', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ position, image_url: imageUrl }),
+        body: JSON.stringify({ position, image_url: url }),
       })
 
       if (!res.ok) {
         const errData = await res.json()
-        throw new Error(errData.error || 'Error al guardar tarea')
+        throw new Error(errData.error || 'Error al guardar')
       }
 
-      setSuccess(`Imagen ${position} actualizada`)
+      setSuccess(`Video ${position} actualizado correctamente`)
       fetchTasks()
     } catch (err: any) {
-      console.error('Upload error:', err)
-      setError(err.message || 'Error al subir imagen')
+      setError(err.message || 'Error al guardar')
     } finally {
-      setUploading(null)
-      // Reset the input so the same file can be selected again
-      if (fileInputRefs.current[position]) {
-        fileInputRefs.current[position]!.value = ''
-      }
+      setSaving(null)
     }
   }
 
   const handleDelete = async (position: number) => {
-    if (!confirm('¿Eliminar esta imagen de tarea?')) return
+    if (!confirm('Eliminar este video?')) return
 
     try {
       const res = await fetch(`/api/admin/tasks?position=${position}`, {
@@ -117,7 +104,8 @@ export default function TasksTab({ token }: TasksTabProps) {
       })
 
       if (res.ok) {
-        setSuccess(`Imagen ${position} eliminada`)
+        setSuccess(`Video ${position} eliminado`)
+        setUrls(prev => ({ ...prev, [position]: '' }))
         fetchTasks()
       } else {
         setError('Error al eliminar')
@@ -142,86 +130,80 @@ export default function TasksTab({ token }: TasksTabProps) {
   return (
     <div className="space-y-6">
       <div className="text-center mb-6">
-        <h2 className="text-xl font-bold text-gold mb-2">Tareas Diarias</h2>
+        <h2 className="text-xl font-bold text-gold mb-2">Tareas Diarias - Videos</h2>
         <p className="text-text-secondary text-sm">
-          Sube 4 imágenes que los usuarios deben calificar y comentar para activar sus ganancias diarias
+          Pega 4 URLs de YouTube. Los usuarios deben ver cada video completo para activar sus ganancias.
         </p>
       </div>
 
       {error && (
-        <div className="bg-red-500/20 border border-red-500 text-red-300 px-4 py-2 rounded-lg text-center">
+        <div className="bg-red-500/20 border border-red-500 text-red-300 px-4 py-2 rounded-lg text-center text-sm">
           {error}
         </div>
       )}
 
       {success && (
-        <div className="bg-green-500/20 border border-green-500 text-green-300 px-4 py-2 rounded-lg text-center">
+        <div className="bg-green-500/20 border border-green-500 text-green-300 px-4 py-2 rounded-lg text-center text-sm">
           {success}
         </div>
       )}
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="space-y-4">
         {[1, 2, 3, 4].map(position => {
           const task = getTaskByPosition(position)
+          const videoId = urls[position] ? extractVideoId(urls[position]) : null
           return (
             <Card key={position} className="p-4">
-              <div className="text-center mb-3">
-                <span className="text-gold font-bold">Imagen {position}</span>
+              <div className="flex items-center gap-3 mb-3">
+                <span className="text-gold font-bold">Video {position}</span>
+                {task && <span className="text-xs text-green-400 bg-green-500/20 px-2 py-0.5 rounded">Activo</span>}
               </div>
 
-              {/* Hidden file input */}
-              <input
-                ref={(el) => { fileInputRefs.current[position] = el }}
-                type="file"
-                accept="image/*"
-                className="hidden"
-                onChange={(e) => handleFileChange(position, e)}
-                disabled={uploading !== null}
-              />
+              <div className="space-y-3">
+                <input
+                  type="text"
+                  placeholder="https://www.youtube.com/watch?v=..."
+                  value={urls[position] || ''}
+                  onChange={(e) => setUrls(prev => ({ ...prev, [position]: e.target.value }))}
+                  className="w-full rounded-lg p-3 text-sm"
+                  style={{
+                    background: 'rgba(255, 255, 255, 0.08)',
+                    border: '1px solid rgba(212, 175, 55, 0.2)',
+                    color: '#D1FAE5',
+                  }}
+                />
 
-              {task ? (
-                <div className="space-y-3">
-                  <div className="relative aspect-square rounded-lg overflow-hidden bg-dark-lighter">
+                {videoId && (
+                  <div className="aspect-video rounded-lg overflow-hidden bg-black">
                     <img
-                      src={task.image_url}
-                      alt={`Tarea ${position}`}
-                      className="w-full h-full object-cover"
+                      src={`https://img.youtube.com/vi/${videoId}/hqdefault.jpg`}
+                      alt={`Preview video ${position}`}
+                      className="w-full h-full object-cover opacity-80"
                     />
                   </div>
-                  <div className="flex gap-2">
-                    <Button
-                      variant="secondary"
-                      className="flex-1 text-xs"
-                      onClick={() => handleButtonClick(position)}
-                      disabled={uploading !== null}
-                    >
-                      {uploading === position ? 'Subiendo...' : 'Cambiar'}
-                    </Button>
+                )}
+
+                <div className="flex gap-2">
+                  <Button
+                    variant="primary"
+                    className="flex-1 text-xs"
+                    onClick={() => handleSave(position)}
+                    disabled={saving !== null}
+                  >
+                    {saving === position ? 'Guardando...' : task ? 'Actualizar Video' : 'Guardar Video'}
+                  </Button>
+                  {task && (
                     <button
                       type="button"
                       className="bg-red-500 hover:bg-red-600 text-white text-xs px-3 py-2 rounded-lg disabled:opacity-50"
                       onClick={() => handleDelete(position)}
-                      disabled={uploading !== null}
+                      disabled={saving !== null}
                     >
                       X
                     </button>
-                  </div>
+                  )}
                 </div>
-              ) : (
-                <div className="space-y-3">
-                  <div className="aspect-square rounded-lg bg-dark-lighter flex items-center justify-center border-2 border-dashed border-gray-600">
-                    <span className="text-4xl text-gray-500">📷</span>
-                  </div>
-                  <Button
-                    variant="primary"
-                    className="w-full text-xs"
-                    onClick={() => handleButtonClick(position)}
-                    disabled={uploading !== null}
-                  >
-                    {uploading === position ? 'Subiendo...' : 'Subir Imagen'}
-                  </Button>
-                </div>
-              )}
+              </div>
             </Card>
           )
         })}
@@ -229,7 +211,8 @@ export default function TasksTab({ token }: TasksTabProps) {
 
       <Card className="p-4 bg-dark-lighter">
         <p className="text-xs text-text-secondary text-center">
-          Los usuarios deben calificar (1-5 estrellas) y comentar las 4 imágenes antes de poder activar sus ganancias diarias.
+          Al cambiar un video, todos los usuarios deben volver a verlo para poder activar ganancias.
+          Los usuarios deben ver los 4 videos completos. Al terminar cada video aparece un boton de Netflix.
         </p>
       </Card>
     </div>

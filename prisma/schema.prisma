@@ -27,6 +27,7 @@ model User {
   wallet_ledger      WalletLedger[]
   withdrawals        Withdrawal[]
   task_completions   TaskCompletion[]
+  roulette_paid_spins RoulettePaidSpin[]
 
   @@index([sponsor_id])
   @@index([user_code])
@@ -179,7 +180,7 @@ model DailyProfitRun {
 model DailyTask {
   id          Int              @id @default(autoincrement())
   position    Int              @unique // 1, 2, 3, or 4
-  image_url   String
+  image_url   String           // YouTube video URL
   is_active   Boolean          @default(true)
   created_at  DateTime         @default(now())
   updated_at  DateTime         @updatedAt
@@ -192,8 +193,8 @@ model TaskCompletion {
   id            String    @id @default(cuid())
   user_id       String
   task_id       Int
-  rating        Int       // 1-5 stars
-  comment       String
+  rating        Int?
+  comment       String?
   completed_at  DateTime  @default(now())
   user          User      @relation(fields: [user_id], references: [id], onDelete: Cascade)
   task          DailyTask @relation(fields: [task_id], references: [id], onDelete: Cascade)
@@ -204,10 +205,27 @@ model TaskCompletion {
   @@index([completed_at])
 }
 
+model RoulettePaidSpin {
+  id           String   @id @default(cuid())
+  user_id      String
+  session_id   String
+  entry_amount Float
+  prize_amount Float
+  won          Boolean
+  created_at   DateTime @default(now())
+  user         User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@index([user_id])
+  @@index([session_id])
+  @@index([created_at])
+}
+
 model GlobalConfig {
-  id              Int      @id @default(1)
-  whatsapp_number String   @default("")
-  updated_at      DateTime @updatedAt
+  id                Int      @id @default(1)
+  whatsapp_number   String   @default("")
+  binance_wallet_id String   @default("")
+  binance_qr_url    String   @default("")
+  updated_at        DateTime @updatedAt
 }
 
 enum UserRole {
@@ -234,6 +252,8 @@ enum LedgerType {
   WITHDRAW_REJECT
   ADJUSTMENT
   ROULETTE_WIN
+  ROULETTE_ENTRY
+  ROULETTE_PAID_WIN
 }
 
 enum BannerLocation {

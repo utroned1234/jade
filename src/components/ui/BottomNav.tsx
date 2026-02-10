@@ -9,178 +9,108 @@ export default function BottomNav() {
   const navItems = [
     {
       href: '/home',
-      label: 'Home',
-      icon: (
-        <svg viewBox="0 0 24 24" fill="currentColor">
-          <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" />
+      label: 'Inicio',
+      icon: (active: boolean) => (
+        <svg viewBox="0 0 24 24" fill={active ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth={active ? 0 : 1.8} strokeLinecap="round" strokeLinejoin="round">
+          <path d="M3 9.5L12 2l9 7.5V20a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9.5z" />
+          {!active && <polyline points="9 22 9 12 15 12 15 22" />}
+          {active && <rect x="9" y="12" width="6" height="10" rx="1" fill="#0D1F1C" />}
         </svg>
       )
     },
     {
       href: '/paks',
-      label: 'Paks',
-      icon: (
-        <svg viewBox="0 0 24 24" fill="currentColor">
-          <path d="M20 6h-8l-2-2H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm0 12H4V8h16v10z" />
+      label: 'Paquetes',
+      icon: (active: boolean) => (
+        <svg viewBox="0 0 24 24" fill={active ? 'currentColor' : 'none'} stroke={active ? 'none' : 'currentColor'} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+          <rect x="2" y="2" width="8.5" height="8.5" rx="2.5" />
+          <rect x="13.5" y="2" width="8.5" height="8.5" rx="2.5" />
+          <rect x="2" y="13.5" width="8.5" height="8.5" rx="2.5" />
+          <rect x="13.5" y="13.5" width="8.5" height="8.5" rx="2.5" />
         </svg>
       )
     },
     {
-      href: '/ruleta',
-      label: 'Ruleta',
-      icon: (
-        <svg viewBox="0 0 24 24" fill="currentColor">
-          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/>
-          <circle cx="12" cy="12" r="3"/>
-          <path d="M12 6v2M12 16v2M6 12h2M16 12h2M7.76 7.76l1.41 1.41M14.83 14.83l1.41 1.41M7.76 16.24l1.41-1.41M14.83 9.17l1.41-1.41"/>
+      href: '/tareas',
+      label: 'Tareas',
+      icon: (active: boolean) => (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={active ? 0 : 1.8} strokeLinecap="round" strokeLinejoin="round">
+          <rect x="3" y="3" width="18" height="18" rx="3" fill={active ? 'currentColor' : 'none'} stroke={active ? 'none' : 'currentColor'} />
+          <path d="M8 12l2.5 2.5L16 9" stroke={active ? '#0D1F1C' : 'currentColor'} strokeWidth={active ? 2.5 : 1.8} fill="none" />
         </svg>
       )
     },
     {
       href: '/tables',
-      label: 'Tabla',
-      icon: (
-        <svg viewBox="0 0 24 24" fill="currentColor">
-          <path d="M7.5 21H2V9h5.5v12zm7.25-18h-5.5v18h5.5V3zM22 11h-5.5v10H22V11z" />
+      label: 'Ganancias',
+      icon: (active: boolean) => (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round">
+          <rect x="15.5" y="8" width="5" height="13" rx="1.5" fill={active ? 'currentColor' : 'none'} strokeWidth={active ? 0 : 1.8} />
+          <rect x="9.5" y="3" width="5" height="18" rx="1.5" fill={active ? 'currentColor' : 'none'} strokeWidth={active ? 0 : 1.8} />
+          <rect x="3.5" y="12" width="5" height="9" rx="1.5" fill={active ? 'currentColor' : 'none'} strokeWidth={active ? 0 : 1.8} />
         </svg>
       )
     },
     {
       href: '/withdrawals',
       label: 'Billetera',
-      icon: (
-        <svg viewBox="0 0 24 24" fill="currentColor">
-          <path d="M21 18v1c0 1.1-.9 2-2 2H5c-1.11 0-2-.9-2-2V5c0-1.1.89-2 2-2h14c1.1 0 2 .9 2 2v1h-9c-1.11 0-2 .9-2 2v8c0 1.1.89 2 2 2h9zm-9-2h10V8H12v8zm4-2.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z" />
+      icon: (active: boolean) => (
+        <svg viewBox="0 0 24 24" fill={active ? 'currentColor' : 'none'} stroke={active ? 'none' : 'currentColor'} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+          <rect x="2" y="5" width="20" height="15" rx="3" />
+          {active && <rect x="14" y="10" width="8" height="5" rx="1.5" fill="#0D1F1C" />}
+          {active && <circle cx="17" cy="12.5" r="1" fill="currentColor" />}
+          {!active && <path d="M22 10H16a2 2 0 0 0 0 4h6" />}
+          {!active && <circle cx="17" cy="12" r="0.8" fill="currentColor" />}
         </svg>
       )
     },
   ]
 
   return (
-    <nav
-      className="fixed bottom-5 left-1/2 -translate-x-1/2 z-50"
-      style={{ fontFamily: 'Orbitron, sans-serif' }}
-    >
-      <div
-        className="flex items-end gap-5 px-6 py-2 rounded-2xl transition-all duration-300"
-        style={{
-          background: 'linear-gradient(135deg, rgba(6, 0, 16, 0.95), rgba(13, 26, 45, 0.9))',
-          backdropFilter: 'blur(30px) saturate(180%)',
-          WebkitBackdropFilter: 'blur(30px) saturate(180%)',
-          border: '2px solid rgba(51, 230, 255, 0.4)',
-          boxShadow: '0 8px 32px rgba(0, 217, 255, 0.3), 0 0 60px rgba(0, 217, 255, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.1)',
-        }}
-        onMouseEnter={(e) => {
-          e.currentTarget.style.boxShadow = '0 12px 48px rgba(0, 217, 255, 0.4), 0 0 80px rgba(0, 217, 255, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.15)'
-          e.currentTarget.style.borderColor = 'rgba(51, 230, 255, 0.6)'
-        }}
-        onMouseLeave={(e) => {
-          e.currentTarget.style.boxShadow = '0 8px 32px rgba(0, 217, 255, 0.3), 0 0 60px rgba(0, 217, 255, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.1)'
-          e.currentTarget.style.borderColor = 'rgba(51, 230, 255, 0.4)'
-        }}
-      >
-        {navItems.map((item) => {
-          const isActive = pathname === item.href
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              className="relative group"
-            >
-              {/* Label flotante */}
-              <div
-                className="absolute bottom-full left-1/2 -translate-x-1/2 mb-4 px-4 py-2 rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none whitespace-nowrap"
-                style={{
-                  background: 'linear-gradient(135deg, rgba(6, 0, 16, 0.98), rgba(13, 26, 45, 0.95))',
-                  border: '2px solid rgba(51, 230, 255, 0.6)',
-                  backdropFilter: 'blur(20px)',
-                  boxShadow: '0 6px 20px rgba(0, 217, 255, 0.4), 0 0 30px rgba(0, 217, 255, 0.2)',
-                  fontSize: '13px',
-                  fontWeight: 600,
-                  letterSpacing: '0.5px',
-                  transform: 'translateX(-50%) translateY(10px) scale(0.8)',
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.transform = 'translateX(-50%) translateY(0) scale(1)'
-                }}
-              >
-                {item.label}
-                {/* Flecha */}
-                <div
-                  className="absolute top-full left-1/2 -translate-x-1/2"
-                  style={{
-                    width: 0,
-                    height: 0,
-                    borderLeft: '6px solid transparent',
-                    borderRight: '6px solid transparent',
-                    borderTop: '6px solid rgba(51, 230, 255, 0.6)',
-                  }}
-                />
-              </div>
-
-              {/* Dock Item */}
-              <div
-                className="w-12 h-12 flex items-center justify-center rounded-xl cursor-pointer transition-all duration-[400ms] relative overflow-hidden"
-                style={{
-                  background: isActive
-                    ? 'linear-gradient(135deg, rgba(51, 230, 255, 0.3), rgba(0, 180, 255, 0.2))'
-                    : 'linear-gradient(135deg, rgba(51, 230, 255, 0.15), rgba(0, 150, 200, 0.1))',
-                  border: `2px solid ${isActive ? 'rgba(51, 230, 255, 1)' : 'rgba(51, 230, 255, 0.5)'}`,
-                  boxShadow: isActive
-                    ? '0 8px 32px rgba(0, 217, 255, 0.5), 0 0 40px rgba(0, 217, 255, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.3)'
-                    : '0 4px 16px rgba(0, 217, 255, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.2)',
-                  transform: isActive ? 'translateY(-12px) scale(1.2)' : 'translateY(0) scale(1)',
-                }}
-                onMouseEnter={(e) => {
-                  if (!isActive) {
-                    e.currentTarget.style.transform = 'translateY(-12px) scale(1.2)'
-                    e.currentTarget.style.background = 'linear-gradient(135deg, rgba(51, 230, 255, 0.3), rgba(0, 180, 255, 0.2))'
-                    e.currentTarget.style.borderColor = 'rgba(51, 230, 255, 1)'
-                    e.currentTarget.style.boxShadow = '0 8px 32px rgba(0, 217, 255, 0.5), 0 0 40px rgba(0, 217, 255, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.3)'
-                  }
-                }}
-                onMouseLeave={(e) => {
-                  if (!isActive) {
-                    e.currentTarget.style.transform = 'translateY(0) scale(1)'
-                    e.currentTarget.style.background = 'linear-gradient(135deg, rgba(51, 230, 255, 0.15), rgba(0, 150, 200, 0.1))'
-                    e.currentTarget.style.borderColor = 'rgba(51, 230, 255, 0.5)'
-                    e.currentTarget.style.boxShadow = '0 4px 16px rgba(0, 217, 255, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.2)'
-                  }
-                }}
-              >
-                {/* Efecto de brillo al hover */}
-                <div className="absolute inset-0 group-hover:animate-[shine_0.5s_ease] pointer-events-none"
-                  style={{
-                    background: 'linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent)',
-                    transform: 'translateX(-100%)',
-                  }}
-                />
-
-                {/* Icon */}
-                <div
-                  className="relative z-10 w-5 h-5 transition-all duration-300 group-hover:scale-110"
-                  style={{
-                    color: isActive ? '#00ffff' : '#33e6ff',
-                    filter: isActive
-                      ? 'drop-shadow(0 0 12px rgba(0, 255, 255, 1)) drop-shadow(0 0 20px rgba(0, 217, 255, 0.6))'
-                      : 'drop-shadow(0 0 6px rgba(0, 217, 255, 0.8))',
-                  }}
+    <nav className="fixed bottom-3 left-3 right-3 z-50 safe-area-inset-bottom">
+      {/* Fondo azul oscuro con bordes redondeados */}
+      <div className="bg-[#0D1F1C] rounded-2xl shadow-[0_4px_30px_rgba(13,31,28,0.4)] overflow-hidden">
+        <div className="max-w-screen-xl mx-auto px-2">
+          <div className="flex items-center justify-around h-[66px]">
+            {navItems.map((item) => {
+              const isActive = pathname === item.href
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className="flex flex-col items-center justify-center flex-1 h-full group relative"
                 >
-                  {item.icon}
-                </div>
-              </div>
-            </Link>
-          )
-        })}
-      </div>
+                  {/* Glow de fondo del item activo */}
+                  {isActive && (
+                    <div className="absolute inset-x-3 inset-y-2 bg-white/10 rounded-xl" />
+                  )}
 
-      {/* Reflejo del dock */}
-      <div
-        className="absolute top-full left-0 right-0 h-5 pointer-events-none opacity-50 rounded-b-3xl"
-        style={{
-          background: 'linear-gradient(to bottom, rgba(51, 230, 255, 0.1), transparent)',
-        }}
-      />
+                  {/* Icono */}
+                  <div
+                    className={`w-6 h-6 mb-0.5 transition-all duration-300 relative z-10 ${isActive
+                        ? 'text-[#34D399] scale-110 drop-shadow-[0_0_8px_rgba(52,211,153,0.5)]'
+                        : 'text-white/40 group-hover:text-white/70 group-hover:scale-105'
+                      }`}
+                  >
+                    {item.icon(isActive)}
+                  </div>
+
+                  {/* Label */}
+                  <span
+                    className={`text-[10px] font-semibold transition-all duration-300 relative z-10 ${isActive
+                        ? 'text-[#34D399]'
+                        : 'text-white/40 group-hover:text-white/70'
+                      }`}
+                    style={{ fontFamily: 'Outfit, sans-serif' }}
+                  >
+                    {item.label}
+                  </span>
+                </Link>
+              )
+            })}
+          </div>
+        </div>
+      </div>
     </nav>
   )
 }

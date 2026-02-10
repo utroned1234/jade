@@ -121,7 +121,7 @@ export default function UsersTab({ token }: UsersTabProps) {
                 <div className="text-right space-y-2">
                   <div>
                     <p className="text-2xl font-bold text-gold">
-                      Bs {user.balance.toFixed(2)}
+                      ${user.balance.toFixed(2)}
                     </p>
                     {user.active_vip ? (
                       <p className="text-xs text-green-500 mt-1">

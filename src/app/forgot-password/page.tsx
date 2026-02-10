@@ -94,7 +94,7 @@ export default function ForgotPasswordPage() {
         </form>
 
         <p className="mt-8 text-xs text-text-secondary text-center">
-          © 2026 TeknolaApp. Todos los derechos reservados.
+          © 2026 JADE · Powered by Optiver. Todos los derechos reservados.
         </p>
       </div>
     </div>

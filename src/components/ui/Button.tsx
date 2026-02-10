@@ -1,6 +1,5 @@
 import { ButtonHTMLAttributes } from 'react'
 
-// Icono SVG inline para evitar dependencia de lucide-react
 const LoaderIcon = ({ className }: { className?: string }) => (
   <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
     <path d="M21 12a9 9 0 11-6.219-8.56" strokeLinecap="round" />
@@ -8,24 +7,65 @@ const LoaderIcon = ({ className }: { className?: string }) => (
 )
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'primary' | 'secondary' | 'outline' | 'whatsapp'
+  variant?: 'primary' | 'secondary' | 'outline' | 'whatsapp' | 'gold' | 'danger'
   isLoading?: boolean
+  size?: 'sm' | 'md' | 'lg'
 }
 
 export default function Button({
   children,
   variant = 'primary',
   isLoading = false,
+  size = 'md',
   className = '',
   ...props
 }: ButtonProps) {
-  const baseClasses = 'px-6 py-3 font-semibold font-inter transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed text-sm transform active:scale-95 rounded-xl'
+  const sizeClasses = {
+    sm: 'px-4 py-2 text-xs',
+    md: 'px-6 py-3 text-sm',
+    lg: 'px-8 py-4 text-base',
+  }
+
+  const baseClasses = `font-semibold font-outfit transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed transform active:scale-95 rounded-xl ${sizeClasses[size]}`
 
   const variants = {
-    primary: 'bg-gradient-to-r from-[#2979FF] via-[#00E5FF] to-[#2979FF] text-white font-bold hover:brightness-110 border border-[#80D8FF]',
-    secondary: 'bg-[rgba(5,38,89,0.3)] border border-[#5483B3] text-[#C1E8FF] hover:bg-[rgba(5,38,89,0.5)]',
-    outline: 'border border-[#5483B3] text-[#7DA0CA] hover:bg-[#5483B3]/10 hover:text-white',
-    whatsapp: 'bg-whatsapp hover:bg-whatsapp-hover text-white shadow-md hover:shadow-lg border border-whatsapp-hover rounded-xl animate-[pulse-electric_2s_infinite]'
+    primary: `
+      bg-gradient-to-r from-primary to-primary-dark
+      text-white
+      shadow-glow
+      hover:shadow-[0_6px_20px_rgba(16,185,129,0.45)]
+      hover:-translate-y-0.5
+    `,
+    secondary: `
+      bg-btn-secondary-bg
+      text-btn-secondary-text
+      border border-btn-secondary-border
+      hover:bg-primary/10
+    `,
+    outline: `
+      border-2 border-primary
+      text-primary
+      hover:bg-primary/5
+    `,
+    gold: `
+      bg-gradient-to-r from-gold to-gold-dark
+      text-white
+      shadow-glow-gold
+      hover:shadow-[0_6px_20px_rgba(251,191,36,0.45)]
+      hover:-translate-y-0.5
+    `,
+    danger: `
+      bg-gradient-to-r from-red-500 to-red-600
+      text-white
+      shadow-[0_4px_14px_rgba(239,68,68,0.3)]
+      hover:-translate-y-0.5
+    `,
+    whatsapp: `
+      bg-gradient-to-r from-whatsapp to-whatsapp-hover
+      text-white
+      shadow-[0_4px_14px_rgba(37,211,102,0.3)]
+      hover:-translate-y-0.5
+    `
   }
 
   return (

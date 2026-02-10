@@ -1,0 +1,9 @@
+{
+    "appService.zipIgnorePattern": [
+        "node_modules{,/**}",
+        ".vscode{,/**}"
+    ],
+    "appService.defaultWebAppToDeploy": "/subscriptions/d77eccab-74fb-4264-a47a-949c3fb49dd2/resourceGroups/DefaultResourceGroup-CCAN/providers/Microsoft.Web/sites/miwebultron",
+    "appService.deploySubpath": ".",
+    "git.ignoreLimitWarning": true
+}

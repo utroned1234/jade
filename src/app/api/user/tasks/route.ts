@@ -3,8 +3,8 @@ import { prisma } from '@/lib/db'
 import { requireAuth } from '@/lib/auth/middleware'
 
 // GET - Get tasks and user's completion status
-// Tasks are unlocked when admin uploads/updates images
-// User must complete tasks that were updated after their last completion
+// Tasks are unlocked when admin updates video URLs
+// User must complete tasks (watch videos) that were updated after their last completion
 export async function GET(req: NextRequest) {
   const authResult = requireAuth(req)
   if ('error' in authResult) {
@@ -12,6 +12,16 @@ export async function GET(req: NextRequest) {
   }
 
   try {
+    // Verificar que el usuario tenga al menos un paquete JADE activo
+    const activePackageCount = await prisma.purchase.count({
+      where: {
+        user_id: authResult.user.userId,
+        status: 'ACTIVE',
+      },
+    })
+
+    const hasActivePackage = activePackageCount > 0
+
     // Get all active tasks
     const tasks = await prisma.dailyTask.findMany({
       where: { is_active: true },
@@ -57,6 +67,7 @@ export async function GET(req: NextRequest) {
       all_completed: allCompleted,
       completed_count: completedCount,
       total_tasks: tasks.length,
+      has_active_package: hasActivePackage,
     })
   } catch (error) {
     console.error('Get user tasks error:', error)
@@ -64,7 +75,7 @@ export async function GET(req: NextRequest) {
   }
 }
 
-// POST - Submit a task completion (rating + comment)
+// POST - Submit a task completion (video watched)
 export async function POST(req: NextRequest) {
   const authResult = requireAuth(req)
   if ('error' in authResult) {
@@ -72,18 +83,25 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const { task_id, rating, comment } = await req.json()
+    // Verificar que el usuario tenga al menos un paquete JADE activo
+    const activePackageCount = await prisma.purchase.count({
+      where: {
+        user_id: authResult.user.userId,
+        status: 'ACTIVE',
+      },
+    })
+
+    if (activePackageCount === 0) {
+      return NextResponse.json(
+        { error: 'Debes tener al menos un paquete JADE activo para completar tareas' },
+        { status: 403 }
+      )
+    }
+
+    const { task_id } = await req.json()
 
     if (!task_id) {
       return NextResponse.json({ error: 'ID de tarea requerido' }, { status: 400 })
-    }
-
-    if (!rating || rating < 1 || rating > 5) {
-      return NextResponse.json({ error: 'Calificación debe ser de 1 a 5' }, { status: 400 })
-    }
-
-    if (!comment || comment.trim().length < 3) {
-      return NextResponse.json({ error: 'Comentario requerido (mínimo 3 caracteres)' }, { status: 400 })
     }
 
     // Check if task exists
@@ -108,13 +126,11 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Ya completaste esta tarea' }, { status: 400 })
     }
 
-    // Create completion
+    // Create completion (video watched)
     const completion = await prisma.taskCompletion.create({
       data: {
         user_id: authResult.user.userId,
         task_id,
-        rating,
-        comment: comment.trim(),
       },
     })
 

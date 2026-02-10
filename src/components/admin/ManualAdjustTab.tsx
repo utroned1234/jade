@@ -63,7 +63,7 @@ export default function ManualAdjustTab({ token }: ManualAdjustTabProps) {
       return
     }
 
-    if (!confirm(`¿Ajustar ${amountNum > 0 ? '+' : ''}${amountNum} Bs al usuario seleccionado?`)) {
+    if (!confirm(`¿Ajustar ${amountNum > 0 ? '+' : ''}${amountNum} USD al usuario seleccionado?`)) {
       return
     }
 
@@ -83,7 +83,7 @@ export default function ManualAdjustTab({ token }: ManualAdjustTabProps) {
       })
 
       if (res.ok) {
-        showToast(`Ajuste realizado: ${amountNum > 0 ? '+' : ''}${amountNum} Bs`, 'success')
+        showToast(`Ajuste realizado: ${amountNum > 0 ? '+' : ''}${amountNum} USD`, 'success')
         setAmount('')
         setDescription('')
         setSelectedUser('')
@@ -147,7 +147,7 @@ export default function ManualAdjustTab({ token }: ManualAdjustTabProps) {
               <option value="">-- Selecciona un usuario --</option>
               {filteredUsers.map((user) => (
                 <option key={user.id} value={user.id}>
-                  {user.full_name} (@{user.username}) - Saldo actual: Bs {user.balance.toFixed(2)}
+                  {user.full_name} (@{user.username}) - Saldo actual: USD {user.balance.toFixed(2)}
                 </option>
               ))}
             </select>

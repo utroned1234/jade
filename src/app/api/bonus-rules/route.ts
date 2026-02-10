@@ -6,9 +6,9 @@ export const dynamic = 'force-dynamic'
 
 export async function GET() {
   try {
-    // Solo devolver los 3 niveles de patrocinio
+    // Devolver los 5 niveles de patrocinio
     const rules = await prisma.referralBonusRule.findMany({
-      where: { level: { lte: 3 } },
+      where: { level: { lte: 5 } },
       orderBy: { level: 'asc' },
     })
     return NextResponse.json(rules)

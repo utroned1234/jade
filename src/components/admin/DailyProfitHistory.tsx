@@ -172,7 +172,7 @@ export default function DailyProfitHistory() {
             <div className="bg-gold/10 rounded-lg p-3 text-center border border-gold/30">
               <p className="text-xs text-text-secondary uppercase">💰 Total Abonado Hoy</p>
               <p className="text-xl font-bold text-gold">
-                Bs {data.summary.total_profit_today.toFixed(2)}
+                ${data.summary.total_profit_today.toFixed(2)}
               </p>
             </div>
           </div>
@@ -222,7 +222,7 @@ export default function DailyProfitHistory() {
             placeholder="Buscar por nombre o usuario..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full bg-dark-card border border-blue-bright/20 rounded-btn px-4 py-2 text-text-primary placeholder-text-secondary focus:outline-none focus:border-gold"
+            className="w-full bg-dark-card border border-jade/20 rounded-btn px-4 py-2 text-text-primary placeholder-text-secondary focus:outline-none focus:border-gold"
           />
         </div>
       </Card>
@@ -258,7 +258,7 @@ export default function DailyProfitHistory() {
                   {user.activated_today && (
                     <div className="text-right">
                       <p className="text-lg font-bold text-green-400">
-                        +Bs {user.profit_today.toFixed(2)}
+                        +${user.profit_today.toFixed(2)}
                       </p>
                       <p className="text-xs text-text-secondary">
                         ⏰{' '}
@@ -284,7 +284,7 @@ export default function DailyProfitHistory() {
                     <div className="flex justify-between items-center text-sm">
                       <span className="text-text-secondary">💰 Saldo anterior:</span>
                       <span className="text-text-primary font-semibold">
-                        Bs {user.balance_before.toFixed(2)}
+                        ${user.balance_before.toFixed(2)}
                       </span>
                     </div>
 
@@ -298,11 +298,11 @@ export default function DailyProfitHistory() {
                             key={idx}
                             className="flex justify-between items-center text-sm pl-2"
                           >
-                            <span className="text-blue-bright text-xs">
+                            <span className="text-jade text-xs">
                               • {activation.package_name}
                             </span>
                             <span className="text-green-400 font-semibold">
-                              +Bs {activation.amount.toFixed(2)}
+                              +${activation.amount.toFixed(2)}
                             </span>
                           </div>
                         ))}
@@ -312,7 +312,7 @@ export default function DailyProfitHistory() {
                     <div className="border-t border-white/10 pt-2 flex justify-between items-center text-sm">
                       <span className="text-text-secondary">💵 Saldo actual:</span>
                       <span className="text-gold font-bold text-base">
-                        Bs {user.balance_after.toFixed(2)}
+                        ${user.balance_after.toFixed(2)}
                       </span>
                     </div>
                   </div>
@@ -330,22 +330,22 @@ export default function DailyProfitHistory() {
                           key={idx}
                           className="flex justify-between items-center bg-dark-card rounded px-3 py-1.5 text-sm"
                         >
-                          <span className="text-blue-bright">{vip.package_name}</span>
+                          <span className="text-jade">{vip.package_name}</span>
                           <span className="text-gold font-semibold">
-                            Bs {vip.daily_profit.toFixed(2)}/día
+                            ${vip.daily_profit.toFixed(2)}/día
                           </span>
                         </div>
                       ))}
                     </div>
                     <div className="text-xs text-text-secondary mt-2">
-                      💰 Saldo actual: Bs {user.balance_after.toFixed(2)}
+                      💰 Saldo actual: ${user.balance_after.toFixed(2)}
                     </div>
                   </div>
                 )}
 
                 {/* Acumulado total */}
                 <div className="text-xs text-text-secondary text-right border-t border-white/10 pt-2">
-                  📊 Acumulado histórico: Bs {user.total_accumulated.toFixed(2)}
+                  📊 Acumulado histórico: ${user.total_accumulated.toFixed(2)}
                 </div>
               </div>
             </Card>
