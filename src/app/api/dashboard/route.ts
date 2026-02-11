@@ -322,7 +322,7 @@ export async function GET(req: NextRequest) {
 
     // Bono compartido: lo que el usuario recibe del 5% repartido por su patrocinador
     let sharedBonus = 0
-    let sharedBonusEntries: { amount_bs: number; description: string; created_at: Date }[] = []
+    let sharedBonusEntries: { amount_bs: number; description: string | null; created_at: Date }[] = []
     try {
       const sharedLedgers = await prisma.walletLedger.findMany({
         where: {
