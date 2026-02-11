@@ -6,25 +6,25 @@ import GlassBackground from '@/components/ui/GlassBackground'
 import LogoutButton from '@/components/ui/LogoutButton'
 
 export const viewport: Viewport = {
-  themeColor: '#0A1A1A',
+  themeColor: '#34D399',
   width: 'device-width',
   initialScale: 1,
   maximumScale: 1,
 }
 
 export const metadata: Metadata = {
-  title: 'TeknolaApp',
-  description: 'Plataforma TeknolaApp Premium - Sistema Futurista V2',
+  title: 'JADE',
+  description: 'Plataforma JADE Premium - Sistema de Inversión',
   icons: {
     icon: [
       {
-        url: 'https://i.ibb.co/MxDtk2Bj/Chat-GPT-Image-4-feb-2026-11-24-11-a-m.png',
+        url: 'https://i.ibb.co/pTMSXB7/Captura-de-pantalla-2026-02-08-111325-Photoroom.png',
         type: 'image/png',
       },
     ],
     apple: [
       {
-        url: 'https://i.ibb.co/MxDtk2Bj/Chat-GPT-Image-4-feb-2026-11-24-11-a-m.png',
+        url: 'https://i.ibb.co/pTMSXB7/Captura-de-pantalla-2026-02-08-111325-Photoroom.png',
         type: 'image/png',
       },
     ],
